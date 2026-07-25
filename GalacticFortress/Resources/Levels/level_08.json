@@ -1,0 +1,25 @@
+{
+  "id": "level_08",
+  "name": "Lava Bastion",
+  "planet": "volcanic",
+  "gridSize": { "cols": 15, "rows": 15 },
+  "spawnPoint": [0, 7],
+  "corePoint": [14, 7],
+  "path": [
+    [0,7],[1,7],[2,7],[2,5],[2,3],[4,3],[6,3],[6,5],[6,7],[6,9],[6,11],
+    [8,11],[10,11],[10,9],[10,7],[10,5],[10,3],[12,3],[12,5],[12,7],[13,7],[14,7]
+  ],
+  "buildSpots": [
+    [1,5],[1,6],[1,8],[1,9],[3,4],[3,5],[3,6],[4,4],[5,4],[4,6],[5,6],
+    [7,6],[7,7],[7,8],[7,10],[8,9],[8,10],[9,10],[9,8],[9,6],[9,4],[11,4],[11,5],
+    [11,6],[11,8],[11,9],[13,6],[13,8]
+  ],
+  "waves": [
+    { "enemies": [{"type":"xarrArmored","count":10},{"type":"xarrSwarm","count":15}], "spawnInterval": 0.8 },
+    { "enemies": [{"type":"xarrTank","count":6},{"type":"xarrArmored","count":8}], "spawnInterval": 0.8 },
+    { "enemies": [{"type":"xarrStealth","count":12},{"type":"xarrTank","count":5}], "spawnInterval": 0.7 },
+    { "enemies": [{"type":"xarrBoss","count":1},{"type":"xarrStealth","count":8},{"type":"xarrArmored","count":6}], "spawnInterval": 0.7 },
+    { "enemies": [{"type":"xarrTank","count":10},{"type":"xarrSwarm","count":20}], "spawnInterval": 0.6 },
+    { "enemies": [{"type":"xarrBoss","count":3},{"type":"xarrArmored","count":8},{"type":"xarrTank","count":6}], "spawnInterval": 0.6 }
+  ]
+}

@@ -22,8 +22,8 @@ final class TowerMenu: SKNode {
 
     private var buttons: [SKShapeNode] = []
 
-    // Phase 1: only Laser Cannon available
-    private let availableTowers: [TowerType] = [.laserCannon]
+    // Phase 2: all 8 towers available
+    private let availableTowers: [TowerType] = TowerType.allCases
 
     // MARK: - Init
 
@@ -37,7 +37,7 @@ final class TowerMenu: SKNode {
 
     // MARK: - Show
 
-    /// Show the build menu at a given build spot.
+    /// Show the build menu at a given build spot — 2-column grid layout for 8 towers.
     func showBuildMenu(at col: Int, row: Int, credits: Int, scenePosition: CGPoint) {
         removeAllChildren()
         buttons.removeAll()
@@ -45,24 +45,114 @@ final class TowerMenu: SKNode {
         gridRow = row
         existingTower = nil
 
-        let bg = makeBackground(rows: availableTowers.count)
+        let rows = Int(ceil(Double(availableTowers.count) / 2.0))
+        let bgW: CGFloat = 240
+        let bgH: CGFloat = CGFloat(rows) * 54 + 60
+        let bg = SKShapeNode(rect: CGRect(x: -bgW/2, y: -8, width: bgW, height: bgH), cornerRadius: 12)
+        bg.fillColor = UIColor(red: 0.04, green: 0.08, blue: 0.18, alpha: 0.96)
+        bg.strokeColor = UIColor.cyan.withAlphaComponent(0.5)
+        bg.lineWidth = 1.5
         addChild(bg)
 
+        // Header label
+        let header = SKLabelNode(text: "Place Tower")
+        header.fontName = "AvenirNext-Bold"
+        header.fontSize = 13
+        header.fontColor = .cyan
+        header.position = CGPoint(x: 0, y: bgH - 24)
+        header.zPosition = 1
+        addChild(header)
+
+        // 2-column grid
         for (i, towerType) in availableTowers.enumerated() {
             let cost = towerType.baseCost
             let canAfford = credits >= cost
-            let btn = makeButton(
-                title: "\(towerType.displayName)  \(cost)💰",
-                index: i,
+            let col2 = i % 2        // 0 = left, 1 = right
+            let row2 = i / 2
+            let x: CGFloat = col2 == 0 ? -60 : 60
+            let y: CGFloat = CGFloat(row2) * 54 + 18
+            let btn = makeGridButton(
+                icon: towerIcon(towerType),
+                name: towerType.displayName,
+                cost: cost,
                 enabled: canAfford,
-                tag: "build_\(towerType.rawValue)"
+                tag: "build_\(towerType.rawValue)",
+                position: CGPoint(x: x, y: y)
             )
             addChild(btn)
             buttons.append(btn)
         }
 
-        addDismissButton(index: availableTowers.count)
-        position = scenePosition + CGPoint(x: 0, y: 60)
+        // Cancel button
+        let cancelBtn = makeButton(title: "✕ Cancel", index: 0, enabled: true, tag: "dismiss")
+        cancelBtn.fillColor = UIColor(red: 0.3, green: 0.1, blue: 0.1, alpha: 0.9)
+        cancelBtn.strokeColor = UIColor.red.withAlphaComponent(0.6)
+        // Position below the grid
+        let cancelY: CGFloat = -2
+        cancelBtn.position = CGPoint(x: 0, y: cancelY)
+        // Override the default index-based positioning
+        if let lbl = cancelBtn.children.first as? SKLabelNode {
+            lbl.position = CGPoint(x: 0, y: cancelY + 17)
+        }
+        addChild(cancelBtn)
+        buttons.append(cancelBtn)
+
+        position = scenePosition + CGPoint(x: 0, y: 70)
+    }
+
+    private func towerIcon(_ type: TowerType) -> String {
+        switch type {
+        case .laserCannon:      return "⚡"
+        case .plasmaAoE:        return "💥"
+        case .ionSlow:          return "❄️"
+        case .empPulse:         return "🌀"
+        case .missileSilo:      return "🚀"
+        case .nanobotRepair:    return "🔧"
+        case .quantumDisruptor: return "🔮"
+        case .solarCollector:   return "☀️"
+        }
+    }
+
+    private func makeGridButton(icon: String, name: String, cost: Int,
+                                enabled: Bool, tag: String, position pos: CGPoint) -> SKShapeNode {
+        let w: CGFloat = 106
+        let h: CGFloat = 48
+        let btn = SKShapeNode(rect: CGRect(x: -w/2, y: -h/2, width: w, height: h), cornerRadius: 8)
+        btn.fillColor = enabled
+            ? UIColor(red: 0.1, green: 0.25, blue: 0.45, alpha: 0.95)
+            : UIColor(white: 0.15, alpha: 0.7)
+        btn.strokeColor = enabled ? UIColor.cyan.withAlphaComponent(0.6) : UIColor(white: 0.3, alpha: 1)
+        btn.lineWidth = 1
+        btn.position = pos
+        btn.name = tag
+        btn.zPosition = 1
+
+        let iconLabel = SKLabelNode(text: icon)
+        iconLabel.fontSize = 16
+        iconLabel.verticalAlignmentMode = .center
+        iconLabel.position = CGPoint(x: -28, y: 4)
+        iconLabel.name = tag
+
+        let nameLabel = SKLabelNode(text: name.components(separatedBy: " ").last ?? name)
+        nameLabel.fontName = "AvenirNext-Bold"
+        nameLabel.fontSize = 9
+        nameLabel.fontColor = enabled ? .white : UIColor(white: 0.4, alpha: 1)
+        nameLabel.horizontalAlignmentMode = .left
+        nameLabel.position = CGPoint(x: -14, y: 8)
+        nameLabel.name = tag
+
+        let costLabel = SKLabelNode(text: "\(cost)💰")
+        costLabel.fontName = "AvenirNext-Regular"
+        costLabel.fontSize = 9
+        costLabel.fontColor = enabled ? .yellow : UIColor(white: 0.4, alpha: 1)
+        costLabel.horizontalAlignmentMode = .left
+        costLabel.position = CGPoint(x: -14, y: -6)
+        costLabel.name = tag
+
+        btn.addChild(iconLabel)
+        btn.addChild(nameLabel)
+        btn.addChild(costLabel)
+        return btn
     }
 
     /// Show the upgrade/sell menu for an existing tower.

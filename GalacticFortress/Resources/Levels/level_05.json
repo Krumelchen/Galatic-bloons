@@ -1,0 +1,25 @@
+{
+  "id": "level_05",
+  "name": "Saharan Dunes",
+  "planet": "desert",
+  "gridSize": { "cols": 15, "rows": 15 },
+  "spawnPoint": [0, 7],
+  "corePoint": [14, 7],
+  "path": [
+    [0,7],[1,7],[2,7],[2,5],[2,3],[3,3],[4,3],[5,3],[6,3],[6,5],[6,7],[6,9],[6,11],
+    [7,11],[8,11],[9,11],[9,9],[9,7],[9,5],[9,3],[10,3],[11,3],[12,3],[12,5],[12,7],[14,7]
+  ],
+  "buildSpots": [
+    [1,5],[1,6],[1,8],[1,9],[3,4],[3,5],[3,6],[4,4],[5,4],[5,5],[5,6],
+    [7,6],[7,7],[7,8],[7,10],[8,9],[8,10],[8,11],[10,4],[10,5],[10,6],[11,4],[11,5],
+    [13,5],[13,6],[13,8],[13,9]
+  ],
+  "waves": [
+    { "enemies": [{"type":"xarrScout","count":10},{"type":"xarrSwarm","count":8}], "spawnInterval": 1.0 },
+    { "enemies": [{"type":"xarrArmored","count":6},{"type":"xarrSwarm","count":10}], "spawnInterval": 1.0 },
+    { "enemies": [{"type":"xarrStealth","count":8},{"type":"xarrTank","count":3}], "spawnInterval": 0.9 },
+    { "enemies": [{"type":"xarrArmored","count":8},{"type":"xarrStealth","count":5}], "spawnInterval": 0.8 },
+    { "enemies": [{"type":"xarrTank","count":6},{"type":"xarrSwarm","count":15}], "spawnInterval": 0.7 },
+    { "enemies": [{"type":"xarrBoss","count":1},{"type":"xarrStealth","count":6},{"type":"xarrArmored","count":5}], "spawnInterval": 0.7 }
+  ]
+}

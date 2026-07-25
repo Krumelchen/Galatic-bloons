@@ -11,7 +11,7 @@ final class ProjectileNode: SKShapeNode {
 
     // MARK: - Init
 
-    init(from startPos: CGPoint, to targetNode: SKNode, type: TowerType) {
+    init(from startPos: CGPoint, to targetNode: EnemyNode, type: TowerType) {
         super.init()
 
         // Projectile appearance varies by tower type

@@ -1,0 +1,25 @@
+{
+  "id": "level_07",
+  "name": "Volcanic Reaches",
+  "planet": "volcanic",
+  "gridSize": { "cols": 15, "rows": 15 },
+  "spawnPoint": [0, 14],
+  "corePoint": [14, 0],
+  "path": [
+    [0,14],[1,14],[2,14],[2,12],[2,10],[3,10],[4,10],[5,10],[5,8],[5,6],
+    [6,6],[7,6],[8,6],[8,4],[8,2],[9,2],[10,2],[11,2],[11,4],[11,6],
+    [12,6],[13,6],[13,4],[13,2],[14,2],[14,1],[14,0]
+  ],
+  "buildSpots": [
+    [1,12],[1,13],[3,12],[3,11],[4,11],[4,9],[6,9],[6,7],[7,7],[7,5],
+    [9,5],[9,4],[9,3],[10,4],[10,3],[12,5],[12,4],[12,3],[12,7]
+  ],
+  "waves": [
+    { "enemies": [{"type":"xarrArmored","count":8},{"type":"xarrScout","count":10}], "spawnInterval": 0.9 },
+    { "enemies": [{"type":"xarrTank","count":5},{"type":"xarrSwarm","count":15}], "spawnInterval": 0.9 },
+    { "enemies": [{"type":"xarrStealth","count":10},{"type":"xarrArmored","count":6}], "spawnInterval": 0.8 },
+    { "enemies": [{"type":"xarrBoss","count":1},{"type":"xarrArmored","count":8}], "spawnInterval": 0.8 },
+    { "enemies": [{"type":"xarrTank","count":8},{"type":"xarrStealth","count":6},{"type":"xarrSwarm","count":12}], "spawnInterval": 0.7 },
+    { "enemies": [{"type":"xarrBoss","count":2},{"type":"xarrTank","count":6},{"type":"xarrArmored","count":6}], "spawnInterval": 0.6 }
+  ]
+}
