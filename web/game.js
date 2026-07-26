@@ -287,6 +287,16 @@ function resetState() {
   state.abilityCD = { slow:0, credits:0, boost:0 };
   state._nextTowerId = 1;
   particles = [];
+  syncButtons();
+}
+
+function syncButtons() {
+  pauseBtn.textContent = state.paused ? "▶️" : "⏸️";
+  pauseBtn.className = state.paused ? "active" : "";
+  autoWaveBtn.textContent = state.autoWave ? "🔄 Auto:ON" : "🔄 Auto";
+  autoWaveBtn.className = state.autoWave ? "active" : "";
+  speedBtn.textContent = state.speed === 3 ? "⏩ 3×" : state.speed === 2 ? "⏩ 2×" : "⏩ 1×";
+  speedBtn.className = state.speed > 1 ? "active" : "";
 }
 
 const state = {};
@@ -1207,7 +1217,11 @@ speedBtn.addEventListener("click", () => {
   state.speed = state.speed >= 3 ? 1 : state.speed + 1;
   updateHud();
 });
-pauseBtn.addEventListener("click", () => { state.paused = !state.paused; });
+pauseBtn.addEventListener("click", () => {
+  state.paused = !state.paused;
+  pauseBtn.textContent = state.paused ? "▶️" : "⏸️";
+  pauseBtn.className = state.paused ? "active" : "";
+});
 soundBtn.addEventListener("click", () => {
   soundEnabled = !soundEnabled;
   soundBtn.textContent = soundEnabled ? "🔊" : "🔇";
@@ -1272,7 +1286,7 @@ function frame(now) {
   const dt = Math.min(0.033, (now-last)/1000) * state.speed;
   last = now;
 
-  if (!state.gameOver) {
+  if (!state.gameOver && !state.paused) {
     // Auto-wave timer
     if (state._autoWaveTimer > 0) {
       state._autoWaveTimer -= dt;
@@ -1284,6 +1298,9 @@ function frame(now) {
     updateProjectiles(dt);
     updateParticles(dt);
     checkWinLose();
+  } else if (!state.gameOver) {
+    // Paused: still update particles for visual effect
+    updateParticles(dt);
   } else {
     updateParticles(dt);
   }
