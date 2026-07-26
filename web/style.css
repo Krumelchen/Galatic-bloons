@@ -247,26 +247,59 @@ canvas {
 }
 
 /* ── Mobile Responsive ── */
-@media (max-width: 600px) {
-  #app { padding: 4px; }
-  .hud { padding: 4px 6px; gap: 3px; }
-  .hud > div { font-size: 10px; padding: 2px 4px; }
-  .tower-row { grid-template-columns: repeat(4, 1fr); gap: 3px; }
-  .tower-row button { min-height: 44px; padding: 4px 2px; }
-  .tower-row button .tower-icon { font-size: 16px; }
+@media (max-width: 800px) {
+  #app { max-width: 100%; padding: 4px; }
+  .hud { padding: 3px 5px; gap: 2px; }
+  .hud > div { font-size: 10px; padding: 2px 5px; }
+  .tower-row { gap: 3px; }
+  .tower-row button { min-height: 40px; padding: 3px 2px; }
+  .tower-row button .tower-icon { font-size: 15px; }
   .tower-row button .tower-label { font-size: 9px; }
   .tower-row button .tower-cost { font-size: 8px; }
-  .controls { padding: 5px; }
-  .actions { flex-wrap: wrap; }
-  .actions button { padding: 8px 4px; font-size: 11px; min-width: 0; flex: 1; }
-  .popup-content { min-width: 240px; margin: 10px; }
+  .controls { padding: 4px; }
+  .actions button { padding: 6px 3px; font-size: 10px; }
+  .hud-actions button { padding: 2px 5px; font-size: 12px; }
+  .abilities button { font-size: 9px; padding: 4px 2px; }
+}
+
+@media (max-width: 600px) {
+  #app { padding: 3px; }
+  .hud { padding: 2px 4px; gap: 2px; border-radius: 6px; }
+  .hud > div { font-size: 9px; padding: 1px 3px; }
+  .tower-row { grid-template-columns: repeat(4, 1fr); gap: 2px; }
+  .tower-row button { min-height: 36px; padding: 2px 1px; border-radius: 5px; }
+  .tower-row button .tower-icon { font-size: 13px; }
+  .tower-row button .tower-label { font-size: 7px; }
+  .tower-row button .tower-cost { font-size: 7px; }
+  .controls { padding: 3px; border-radius: 6px; }
+  .actions { flex-wrap: wrap; gap: 3px; }
+  .actions button { padding: 5px 2px; font-size: 9px; flex: 1 1 30%; }
+  #hint { font-size: 9px; }
+  .abilities button { font-size: 8px; padding: 3px 1px; }
+  .popup-content { min-width: 200px; margin: 5px; padding: 12px; }
+  .popup-content h3 { font-size: 13px; }
+  .popup-content button { padding: 6px; font-size: 11px; }
+  .target-mode select { font-size: 10px; padding: 4px; }
   #score { display: none; }
 }
 
-@media (max-width: 400px) {
-  .hud > div { font-size: 9px; padding: 2px 3px; }
-  .tower-row button .tower-icon { font-size: 14px; }
-  .tower-row button .tower-label { display: none; }
-  .tower-row button .tower-cost { font-size: 7px; }
-  .actions button { font-size: 10px; padding: 6px 2px; }
+/* Extra small / landscape phones */
+@media (max-width: 500px), (orientation: landscape) and (max-height: 500px) {
+  .hud > div { font-size: 8px; padding: 1px 2px; }
+  .hud-actions button { font-size: 10px; padding: 1px 3px; }
+  .tower-row button .tower-icon { font-size: 11px; }
+  .tower-row button .tower-label { display: none; } /* Hide labels, only icons */
+  .tower-row button .tower-cost { font-size: 6px; }
+  .tower-row button { min-height: 30px; }
+  .actions button { font-size: 8px; padding: 4px 1px; }
+  main { padding: 2px; border-radius: 4px; }
+  #hint { font-size: 7px; min-height: 10px; margin: 2px 0; }
+  .abilities button { font-size: 7px; padding: 2px 1px; }
+}
+
+@media (max-width: 350px) {
+  .hud > div { font-size: 7px; padding: 1px 2px; }
+  .tower-row button .tower-icon { font-size: 10px; }
+  .tower-row button { min-height: 26px; }
+  .actions button { font-size: 7px; }
 }
