@@ -1,0 +1,95 @@
+﻿<!doctype html>
+<html lang="de">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover" />
+  <title>Galactic Bloons – Tower Defense</title>
+  <link rel="stylesheet" href="./style.css" />
+</head>
+<body>
+  <div id="app">
+    <header class="hud">
+      <div id="credits">💰 500</div>
+      <div id="score">🏆 0</div>
+      <div id="core">❤️ 150/150</div>
+      <div id="wave">🌊 0/100</div>
+      <div class="hud-actions">
+        <button id="pauseBtn">⏸️</button>
+        <button id="soundBtn">🔊</button>
+      </div>
+    </header>
+
+    <main>
+      <canvas id="game" width="1024" height="576"></canvas>
+    </main>
+
+    <section class="controls">
+      <div class="tower-row" id="towerButtons"></div>
+      <div class="actions">
+        <button id="startWave">▶ Start</button>
+        <button id="autoWaveBtn">🔄 Auto</button>
+        <button id="speedBtn">⏩ 1×</button>
+        <button id="shopBtn">🛒 Shop</button>
+        <button id="clearSelection">✕ Clear</button>
+        <button id="mapBtn">🗺️ Map</button>
+      </div>
+      <div id="abilities" class="abilities hidden">
+        <button id="abilSlow">🐌 Slow (20💰)</button>
+        <button id="abilCredits">💰 Bonus (50💰)</button>
+        <button id="abilBoost">⚡ Boost (30💰)</button>
+      </div>
+      <p id="hint">🌿 Tower auswählen und auf eine freie Fläche tippen</p>
+    </section>
+
+    <!-- Upgrade Popup -->
+    <div id="upgradePopup" class="popup hidden">
+      <div class="popup-content">
+        <h3 id="upgradeTitle">🔫 Laser ★1</h3>
+        <p id="upgradeStats">Schaden: 12 → 14</p>
+        <p id="upgradeStats2">Reichweite: 2.8 → 3.0</p>
+        <div class="target-mode">
+          <label>Ziel-Modus:</label>
+          <select id="targetSelect">
+            <option value="first">🥇 Erster</option>
+            <option value="last">🥉 Letzter</option>
+            <option value="strong">💪 Stärkster</option>
+            <option value="near">📍 Nächster</option>
+          </select>
+        </div>
+        <button id="upgradeBtn">⬆ Upgraden (100⭐)</button>
+        <button id="sellBtn">💰 Verkaufen (+50)</button>
+        <button id="closePopupBtn">✕ Schließen</button>
+      </div>
+    </div>
+
+    <!-- Shop Popup -->
+    <div id="shopPopup" class="popup hidden">
+      <div class="popup-content">
+        <h3>🛒 Shop</h3>
+        <div id="shopItems"></div>
+        <button id="closeShopBtn">✕ Schließen</button>
+      </div>
+    </div>
+
+    <!-- Map Selection -->
+    <div id="mapPopup" class="popup hidden">
+      <div class="popup-content">
+        <h3>🗺️ Karte wählen</h3>
+        <div id="mapList"></div>
+        <button id="closeMapBtn">✕ Schließen</button>
+      </div>
+    </div>
+  </div>
+
+  <div id="statsOverlay" class="popup hidden">
+    <div class="popup-content">
+      <h3>📊 Statistik</h3>
+      <div id="statsContent"></div>
+      <button id="closeStatsBtn">✕ Schließen</button>
+    </div>
+  </div>
+
+  <meta http-equiv="pragma" content="no-cache" />
+  <script src="./game.js"></script>
+</body>
+</html>

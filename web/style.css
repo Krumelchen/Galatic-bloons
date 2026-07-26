@@ -1,0 +1,272 @@
+﻿:root {
+  --bg: #1a3a1a;
+  --panel: rgba(30, 50, 30, 0.92);
+  --text: #f0f4e8;
+  --accent: #5bc8ff;
+  --gold: #ffd54a;
+  --pink: #ff6bb5;
+  --ok: #5fd46d;
+  --warn: #ffd166;
+  --danger: #ff5b6e;
+  --panel-border: rgba(80, 120, 60, 0.4);
+}
+
+* { box-sizing: border-box; font-family: 'Segoe UI', system-ui, -apple-system, sans-serif; }
+body {
+  margin: 0;
+  background: radial-gradient(ellipse at 50% 0%, #2a5a2a 0%, #0a1a0a 80%);
+  color: var(--text);
+  min-height: 100vh;
+  -webkit-user-select: none;
+  user-select: none;
+  -webkit-tap-highlight-color: transparent;
+}
+#app {
+  max-width: 1000px;
+  margin: 0 auto;
+  padding: 8px;
+}
+
+/* ── HUD – BTD5-style top bar ── */
+.hud {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 4px;
+  background: linear-gradient(180deg, rgba(40, 65, 35, 0.95), rgba(25, 40, 20, 0.95));
+  border: 1px solid var(--panel-border);
+  padding: 6px 10px;
+  border-radius: 10px;
+  margin-bottom: 6px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.4);
+}
+.hud > div {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  font-weight: 700;
+  font-size: 13px;
+  padding: 4px 8px;
+  border-radius: 6px;
+  background: rgba(0,0,0,0.25);
+  white-space: nowrap;
+}
+.hud #credits { color: var(--gold); }
+.hud #score { color: var(--pink); }
+.hud #core { color: var(--ok); }
+.hud #wave { color: var(--accent); }
+.hud-actions { display: flex; gap: 4px; }
+.hud-actions button {
+  background: rgba(0,0,0,0.3); border: 1px solid rgba(255,255,255,0.1);
+  color: var(--text); border-radius: 6px; padding: 4px 8px; cursor: pointer; font-size: 14px;
+}
+.hud-actions button.muted { opacity: 0.5; }
+
+/* ── Game canvas ── */
+main {
+  background: linear-gradient(135deg, #1a3a1a, #0d2a0d);
+  border-radius: 10px;
+  padding: 4px;
+  border: 2px solid var(--panel-border);
+  box-shadow: inset 0 0 20px rgba(0,0,0,0.3), 0 4px 20px rgba(0,0,0,0.5);
+}
+canvas {
+  width: 100%;
+  height: auto;
+  border-radius: 8px;
+  touch-action: manipulation;
+  display: block;
+  cursor: pointer;
+}
+
+/* ── Controls panel – BTD5-style ── */
+.controls {
+  background: linear-gradient(180deg, rgba(40, 65, 35, 0.92), rgba(25, 40, 20, 0.92));
+  margin-top: 6px;
+  border-radius: 10px;
+  padding: 8px;
+  border: 1px solid var(--panel-border);
+}
+
+.tower-row {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 5px;
+  margin-bottom: 6px;
+}
+
+/* BTD5-inspired tower buttons */
+.tower-row button {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+  border: 2px solid rgba(80, 120, 60, 0.5);
+  background: linear-gradient(180deg, #2a4a2a, #1a3a1a);
+  color: var(--text);
+  border-radius: 8px;
+  padding: 6px 4px;
+  font-size: 11px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.12s;
+  min-height: 52px;
+}
+.tower-row button:hover {
+  background: linear-gradient(180deg, #3a5a3a, #2a4a2a);
+  border-color: rgba(90, 200, 255, 0.4);
+}
+.tower-row button.selected {
+  border-color: var(--accent);
+  background: linear-gradient(180deg, #2a5a3a, #1a4a2a);
+  box-shadow: 0 0 0 2px rgba(90, 200, 255, 0.2), inset 0 0 10px rgba(90, 200, 255, 0.08);
+}
+.tower-row button:disabled { opacity: 0.35; cursor: default; }
+.tower-row button .tower-icon { font-size: 20px; line-height: 1; }
+.tower-row button .tower-label { font-size: 10px; }
+.tower-row button .tower-cost { font-size: 9px; color: var(--gold); opacity: 0.8; }
+
+.actions {
+  display: flex;
+  gap: 6px;
+  margin-bottom: 6px;
+}
+.actions button {
+  flex: 1;
+  padding: 10px 8px;
+  border-radius: 8px;
+  font-size: 13px;
+  font-weight: 700;
+  border: 2px solid rgba(80, 120, 60, 0.5);
+  background: linear-gradient(180deg, #2a4a2a, #1a3a1a);
+  color: var(--text);
+  cursor: pointer;
+  transition: all 0.12s;
+}
+#startWave {
+  background: linear-gradient(180deg, #2a6a3a, #1a4a2a);
+  border-color: #3a8a4a;
+}
+#startWave:hover {
+  background: linear-gradient(180deg, #3a7a4a, #2a5a3a);
+}
+#clearSelection {
+  background: linear-gradient(180deg, #4a2a2a, #3a1a1a);
+  border-color: #6a3a3a;
+}
+
+#hint {
+  margin: 4px 0 0;
+  color: #a0c0a0;
+  font-size: 11px;
+  text-align: center;
+  min-height: 16px;
+}
+
+/* ── Speed Button ── */
+#speedBtn { background: linear-gradient(180deg, #3a4a3a, #2a3a2a); border-color: #5a7a5a; min-width: 48px; }
+#speedBtn.active { background: linear-gradient(180deg, #5a3a2a, #4a2a1a); border-color: #ff8a4a; box-shadow: 0 0 8px rgba(255,138,74,0.3); }
+#shopBtn { background: linear-gradient(180deg, #3a4a3a, #2a3a2a); border-color: #5a7a5a; }
+
+/* ── Popups (Upgrade / Shop) ── */
+.popup {
+  position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+  display: flex; align-items: center; justify-content: center;
+  background: rgba(0,0,0,0.55); z-index: 100;
+  backdrop-filter: blur(3px);
+}
+.popup.hidden { display: none; }
+.popup-content {
+  background: linear-gradient(180deg, #2a4a2a, #1a3a1a);
+  border: 2px solid #4a7a4a;
+  border-radius: 14px; padding: 20px; min-width: 280px; max-width: 360px;
+  box-shadow: 0 8px 32px rgba(0,0,0,0.5);
+}
+.popup-content h3 { margin: 0 0 12px; color: var(--gold); font-size: 16px; text-align: center; }
+.popup-content p { margin: 4px 0; font-size: 13px; color: #c0d8c0; }
+.popup-content button {
+  display: block; width: 100%; margin-top: 8px;
+  padding: 10px; border-radius: 8px; font-size: 13px; font-weight: 700;
+  border: 2px solid rgba(80, 120, 60, 0.5);
+  background: linear-gradient(180deg, #3a5a3a, #2a4a2a);
+  color: var(--text); cursor: pointer;
+}
+.popup-content #upgradeBtn { background: linear-gradient(180deg, #3a6a3a, #2a5a2a); border-color: #5a9a5a; }
+.popup-content #sellBtn { background: linear-gradient(180deg, #5a3a2a, #4a2a1a); border-color: #7a5a3a; }
+.popup-content #closePopupBtn, .popup-content #closeShopBtn, .popup-content #closeMapBtn { background: linear-gradient(180deg, #3a2a2a, #2a1a1a); border-color: #5a3a3a; }
+.shop-item {
+  display: flex; justify-content: space-between; align-items: center;
+  padding: 8px; margin: 4px 0; border-radius: 8px;
+  background: rgba(0,0,0,0.2); border: 1px solid rgba(80,120,60,0.3);
+}
+.shop-item-info { flex: 1; }
+.shop-item-info .name { font-weight: 700; font-size: 13px; }
+.shop-item-info .desc { font-size: 11px; color: #90b090; }
+.shop-item-info .lvl { font-size: 10px; color: var(--gold); }
+.shop-item button { width: auto; padding: 6px 12px; margin: 0; font-size: 12px; }
+
+/* ── Abilities Bar ── */
+.abilities { display: flex; gap: 5px; margin-bottom: 4px; }
+.abilities.hidden { display: none; }
+.abilities button {
+  flex: 1; font-size: 11px; padding: 6px 4px; font-weight: 600;
+  background: linear-gradient(180deg, #3a3a4a, #2a2a3a);
+  border: 1px solid rgba(80,80,120,0.4);
+}
+.abilities button:disabled { opacity: 0.3; }
+
+/* ── Target Mode Select ── */
+.target-mode { display: flex; align-items: center; gap: 8px; margin: 8px 0; }
+.target-mode label { font-size: 12px; color: #a0c0a0; white-space: nowrap; }
+.target-mode select {
+  flex: 1; padding: 6px; border-radius: 6px;
+  background: #1a2a1a; color: var(--text); border: 1px solid #3a5a3a;
+  font-size: 12px; cursor: pointer;
+}
+
+/* ── Map Selection ── */
+.map-option {
+  display: flex; align-items: center; gap: 12px; padding: 10px; margin: 4px 0;
+  border-radius: 8px; background: rgba(0,0,0,0.2); border: 1px solid rgba(80,120,60,0.3);
+  cursor: pointer; transition: all 0.12s;
+}
+.map-option:hover { background: rgba(0,0,0,0.4); border-color: var(--accent); }
+.map-option .map-icon { font-size: 28px; }
+.map-option .map-name { font-weight: 700; font-size: 14px; }
+.map-option .map-desc { font-size: 11px; color: #90b090; }
+
+/* ── Score popup ── */
+.score-popup {
+  position: fixed; pointer-events: none; font-weight: 700; font-size: 18px;
+  color: var(--gold); text-shadow: 0 2px 4px rgba(0,0,0,0.5);
+  z-index: 50; animation: floatUp 1.2s ease-out forwards;
+}
+@keyframes floatUp {
+  0% { opacity: 1; transform: translateY(0) scale(1); }
+  100% { opacity: 0; transform: translateY(-40px) scale(1.2); }
+}
+
+/* ── Mobile Responsive ── */
+@media (max-width: 600px) {
+  #app { padding: 4px; }
+  .hud { padding: 4px 6px; gap: 3px; }
+  .hud > div { font-size: 10px; padding: 2px 4px; }
+  .tower-row { grid-template-columns: repeat(4, 1fr); gap: 3px; }
+  .tower-row button { min-height: 44px; padding: 4px 2px; }
+  .tower-row button .tower-icon { font-size: 16px; }
+  .tower-row button .tower-label { font-size: 9px; }
+  .tower-row button .tower-cost { font-size: 8px; }
+  .controls { padding: 5px; }
+  .actions { flex-wrap: wrap; }
+  .actions button { padding: 8px 4px; font-size: 11px; min-width: 0; flex: 1; }
+  .popup-content { min-width: 240px; margin: 10px; }
+  #score { display: none; }
+}
+
+@media (max-width: 400px) {
+  .hud > div { font-size: 9px; padding: 2px 3px; }
+  .tower-row button .tower-icon { font-size: 14px; }
+  .tower-row button .tower-label { display: none; }
+  .tower-row button .tower-cost { font-size: 7px; }
+  .actions button { font-size: 10px; padding: 6px 2px; }
+}

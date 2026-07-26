@@ -1,0 +1,8 @@
+# Galactic Bloons – Tower Defense
+# Automatischer Deploy zu GitHub & Render.com
+
+# Ausgenommen von Git
+node_modules/
+.DS_Store
+Thumbs.db
+*.log

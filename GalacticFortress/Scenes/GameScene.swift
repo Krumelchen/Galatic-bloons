@@ -32,6 +32,7 @@ final class GameScene: SKScene {
 
     override func didMove(to view: SKView) {
         backgroundColor = UIColor(red: 0.03, green: 0.04, blue: 0.1, alpha: 1)
+        addRadialBackground()
         addStarfield()
         loadLevel()
         setupCamera()
@@ -39,6 +40,26 @@ final class GameScene: SKScene {
         setupHUD()
         setupGameState()
         setupWaveManager()
+    }
+
+    /// Adds a radial gradient background for 2.5D depth
+    private func addRadialBackground() {
+        let bgSize = CGSize(width: size.width * 1.5, height: size.height * 1.5)
+        let bgNode = SKShapeNode(circleOfRadius: max(bgSize.width, bgSize.height) * 0.6)
+        bgNode.fillColor = UIColor(red: 0.06, green: 0.08, blue: 0.18, alpha: 1)
+        bgNode.strokeColor = .clear
+        bgNode.position = CGPoint(x: size.width / 2, y: size.height / 2)
+        bgNode.zPosition = -20
+        cameraNode?.addChild(bgNode)
+
+        // Subtle glow ring
+        let glow = SKShapeNode(circleOfRadius: 180)
+        glow.fillColor = UIColor(red: 0.1, green: 0.15, blue: 0.3, alpha: 0.3)
+        glow.strokeColor = UIColor(red: 0.2, green: 0.3, blue: 0.5, alpha: 0.15)
+        glow.lineWidth = 1
+        glow.position = CGPoint(x: size.width / 2, y: size.height / 2)
+        glow.zPosition = -19
+        cameraNode?.addChild(glow)
     }
 
     // MARK: - Level Loading

@@ -1,53 +1,67 @@
-# 🚀 Galactic Fortress
+# 🌐 Galactic Bloons – Tower Defense
 
-A native iOS sci-fi tower defense game built with **Swift + SpriteKit**.
+**BTD6-inspiriertes Tower Defense** – spielbar im Browser!
 
-Defend the last human colonies against the alien Xarr invasion — on an isometric 2.5D battlefield.
+## 🎮 Features
 
-## Features (Phase 1 MVP)
-- Isometric 2.5D map rendering
-- Laser Cannon tower with 3 upgrade levels
-- 2 enemy types: Xarr Scout & Xarr Tank
-- 5-wave campaign level (Alpha Centauri)
-- Economy system (credits, sell/upgrade towers)
-- HUD with wave control, credits, core HP
-- Main menu, campaign map, and game over screens
+- 30 Wellen mit 18 Gegnertypen (Red → B.A.D.)
+- 8 Tier-Charakter-Türme (🐵🐶🐱🐰🦊🐼🦄🐝)
+- Auto-Wave, Speed-Controls (1×/2×/3×)
+- Shop mit globalen Upgrades
+- 4 verschiedene Maps
+- Pause, Sound-Toggle
+- Score-System mit Highscore
 
-## Project Structure
+## 🚀 Deployment (Render.com)
 
+### 1. Repository erstellen
+```bash
+git init
+git add -A
+git commit -m "Initial commit"
+git branch -M main
+git remote add origin https://github.com/DEIN_USERNAME/galactic-bloons.git
+git push -u origin main
 ```
-GalacticFortress/
-├── App/                  AppDelegate, SceneDelegate, GameViewController
-├── Scenes/               MainMenuScene, CampaignMapScene, GameScene, GameOverScene
-├── Nodes/                IsometricMapNode, TowerNode, EnemyNode, ProjectileNode
-├── Models/               Tower, Enemy, Level, GameState
-├── Managers/             WaveManager, PathfindingManager
-└── Resources/Levels/     level_01.json
+
+### 2. Auf Render.com deployen
+1. **render.com** → New+ → Static Site
+2. GitHub-Repo verbinden
+3. Einstellungen:
+   - **Name**: `galactic-bloons`
+   - **Branch**: `main`
+   - **Build Command**: *(leer)*
+   - **Publish Directory**: `web/`
+4. **Create Static Site**
+
+### 3. Automatische Updates
+Einfach `deploy.ps1` ausführen – das pushed alle Änderungen zu GitHub und Render deployed automatisch neu:
+
+```powershell
+.\deploy.ps1
 ```
 
-## Setup in Xcode
+## 📁 Dateien
+- `web/index.html` – Einstiegspunkt
+- `web/game.js` – Komplettes Spiel (Canvas)
+- `web/style.css` – Mobile-optimiertes Design
+- `deploy.ps1` – Auto-Deploy Skript
 
-1. Open Xcode → **File → New → Project → Game** (iOS, SpriteKit)
-2. Name it `GalacticFortress`, Bundle ID of your choice
-3. Delete the default `GameScene.swift` and `GameScene.sks`
-4. Drag the entire `GalacticFortress/` folder into Xcode (check "Copy items if needed")
-5. Add `level_01.json` to the **Copy Bundle Resources** build phase
-6. Update `Info.plist`:
-   - Set `UISceneConfigurations` → `UIWindowSceneSessionRoleApplication` → `SceneDelegate` class
-   - Set `UIRequiresFullScreen = YES`
-   - Remove the default `Main.storyboard` entry
-7. Build and run on iPhone or Simulator (landscape orientation)
+## 🎯 Spiel starten
+`web/index.html` im Browser öffnen (auch lokal möglich!)
 
-## Roadmap
-
-| Phase | Status | Description |
-|-------|--------|-------------|
-| 1 — MVP | ✅ | Core loop, 1 tower, 2 enemies, 1 level |
-| 2 — Content | 🔜 | All 8 towers, 6 enemies, 20 levels, Blender art |
-| 3 — Online | 🔜 | GameCenter multiplayer, leaderboard, achievements |
-| 4 — Polish | 🔜 | StoreKit IAP, tutorial, App Store |
-
-## Requirements
 - iOS 16+
 - Xcode 15+
 - Swift 5.9+
+
+## Web Version (No Mac required)
+
+A browser version is available in `web/`.
+
+### Run locally
+
+1. Open a terminal in the repository root.
+2. Start a local server:
+   - `python -m http.server 8080`
+3. Open `http://localhost:8080/web/` in your browser.
+4. On iPhone, open the same URL from your local network (same Wi-Fi) and optionally add it to Home Screen.

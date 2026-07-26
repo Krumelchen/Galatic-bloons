@@ -38,9 +38,36 @@ final class TowerNode: SKNode {
         self.tower = tower
         let colors = TowerNode.colors(for: tower.type)
 
-        // Base: isometric diamond
-        let baseW: CGFloat = 60
-        let baseH: CGFloat = 30
+        // ── 2.5D Shadow ──
+        let shadowNode = SKShapeNode(circleOfRadius: 28)
+        shadowNode.fillColor = UIColor(white: 0, alpha: 0.3)
+        shadowNode.strokeColor = .clear
+        shadowNode.position = CGPoint(x: 6, y: -4)
+        shadowNode.zPosition = 0
+
+        // ── 3D Cylinder Body ──
+        let bodyPath = CGMutablePath()
+        let bodyW: CGFloat = 36
+        let bodyH: CGFloat = 20
+        // Top ellipse
+        bodyPath.addEllipse(in: CGRect(x: -bodyW/2, y: -bodyH/4, width: bodyW, height: bodyH/2))
+        super.init()
+
+        // Cylinder body (stacked ellipses for 3D effect)
+        let cylinder = SKNode()
+        for i in stride(from: 0, through: 20, by: 4) {
+            let slice = SKShapeNode(circleOfRadius: 16 - CGFloat(i) * 0.3)
+            let t = CGFloat(i) / 20
+            slice.fillColor = colors.fill.withBrightness(0.8 + 0.2 * (1 - t))
+            slice.strokeColor = .clear
+            slice.yScale = 0.35
+            slice.position = CGPoint(x: 0, y: CGFloat(i) * 0.6)
+            slice.zPosition = 1 + t
+            cylinder.addChild(slice)
+        }
+        // Base platform (isometric diamond)
+        let baseW: CGFloat = 52
+        let baseH: CGFloat = 26
         let basePath = CGMutablePath()
         basePath.move(to: CGPoint(x: 0,        y: baseH/2))
         basePath.addLine(to: CGPoint(x: baseW/2,  y: 0))
@@ -48,10 +75,28 @@ final class TowerNode: SKNode {
         basePath.addLine(to: CGPoint(x: -baseW/2, y: 0))
         basePath.closeSubpath()
         baseShape = SKShapeNode(path: basePath)
-        baseShape.fillColor = colors.fill
+        baseShape.fillColor = colors.fill.withBrightness(0.7)
         baseShape.strokeColor = colors.stroke
-        baseShape.lineWidth = 2
-        baseShape.zPosition = 1
+        baseShape.lineWidth = 1.5
+        baseShape.zPosition = 0.5
+
+        // Domed top
+        let dome = SKShapeNode(circleOfRadius: 14)
+        let domeGrad = colors.stroke
+        dome.fillColor = domeGrad
+        dome.strokeColor = colors.stroke.withAlphaComponent(0.6)
+        dome.lineWidth = 1
+        dome.yScale = 0.5
+        dome.position = CGPoint(x: 0, y: 13)
+        dome.zPosition = 3
+
+        // Top highlight
+        let highlight = SKShapeNode(circleOfRadius: 5)
+        highlight.fillColor = UIColor(white: 1, alpha: 0.5)
+        highlight.strokeColor = .clear
+        highlight.yScale = 0.4
+        highlight.position = CGPoint(x: -4, y: 14)
+        highlight.zPosition = 4
 
         // Gun barrel (shape varies by type)
         let barrelPath = TowerNode.barrelPath(for: tower.type)
@@ -59,8 +104,8 @@ final class TowerNode: SKNode {
         gunBarrel.fillColor = colors.stroke
         gunBarrel.strokeColor = .white
         gunBarrel.lineWidth = 1
-        gunBarrel.position = CGPoint(x: 0, y: baseH / 2)
-        gunBarrel.zPosition = 2
+        gunBarrel.position = CGPoint(x: 0, y: 18)
+        gunBarrel.zPosition = 3.5
 
         // Range indicator (hidden by default)
         rangeIndicator = SKShapeNode(circleOfRadius: tower.stats.range)
@@ -75,18 +120,22 @@ final class TowerNode: SKNode {
         levelLabel.fontSize = 10
         levelLabel.fontColor = .yellow
         levelLabel.fontName = "AvenirNext-Bold"
-        levelLabel.position = CGPoint(x: 0, y: baseH/2 + 30)
-        levelLabel.zPosition = 3
+        levelLabel.position = CGPoint(x: 0, y: 30)
+        levelLabel.zPosition = 5
 
         // Tower type icon
         iconLabel = SKLabelNode(text: TowerNode.icon(for: tower.type))
-        iconLabel.fontSize = 14
+        iconLabel.fontSize = 13
+        iconLabel.fontName = "AvenirNext-Bold"
         iconLabel.verticalAlignmentMode = .center
-        iconLabel.position = CGPoint(x: 0, y: 2)
-        iconLabel.zPosition = 4
+        iconLabel.position = CGPoint(x: 0, y: 13)
+        iconLabel.zPosition = 4.5
 
-        super.init()
+        addChild(shadowNode)
         addChild(baseShape)
+        addChild(cylinder)
+        addChild(dome)
+        addChild(highlight)
         addChild(gunBarrel)
         addChild(rangeIndicator)
         addChild(levelLabel)

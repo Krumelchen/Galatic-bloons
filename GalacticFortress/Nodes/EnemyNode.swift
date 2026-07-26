@@ -48,11 +48,34 @@ final class EnemyNode: SKNode {
         default:            radius = 14
         }
 
+        // ── 2.5D Shadow ──
+        let shadow = SKShapeNode(circleOfRadius: radius * 1.3)
+        shadow.fillColor = UIColor(white: 0, alpha: 0.25)
+        shadow.strokeColor = .clear
+        shadow.yScale = 0.4
+        shadow.position = CGPoint(x: 4, y: -4)
+        shadow.zPosition = 0
+
+        // ── 3D Sphere Body ──
         bodyShape = SKShapeNode(circleOfRadius: radius)
         bodyShape.fillColor = EnemyNode.color(for: enemy.type)
         bodyShape.strokeColor = .white
         bodyShape.lineWidth = enemy.type == .xarrBoss ? 3 : 1.5
         bodyShape.zPosition = 1
+
+        // Sphere highlight (radial gradient simulated with layered circles)
+        let highlight = SKShapeNode(circleOfRadius: radius * 0.35)
+        highlight.fillColor = UIColor(white: 1, alpha: 0.35)
+        highlight.strokeColor = .clear
+        highlight.position = CGPoint(x: -radius * 0.25, y: radius * 0.25)
+        highlight.zPosition = 1.2
+
+        // Sphere rim glow
+        let rim = SKShapeNode(circleOfRadius: radius * 0.85)
+        rim.fillColor = UIColor(white: 1, alpha: 0.08)
+        rim.strokeColor = .clear
+        rim.position = CGPoint(x: radius * 0.2, y: -radius * 0.15)
+        rim.zPosition = 0.8
 
         // Stealth: dashed stroke overlay for stealth enemies
         if enemy.type.isStealth {
@@ -91,7 +114,10 @@ final class EnemyNode: SKNode {
         typeLabel.zPosition = 4
 
         super.init()
+        addChild(shadow)
+        addChild(rim)
         addChild(bodyShape)
+        addChild(highlight)
         if let overlay = stealthOverlay { addChild(overlay) }
         addChild(hpBarBg)
         addChild(hpBarFg)
@@ -320,23 +346,23 @@ final class EnemyNode: SKNode {
 
     private static func color(for type: EnemyType) -> UIColor {
         switch type {
-        case .xarrScout:    return UIColor(red: 1.0, green: 0.3, blue: 0.3, alpha: 1)
-        case .xarrTank:     return UIColor(red: 0.6, green: 0.2, blue: 0.8, alpha: 1)
-        case .xarrSwarm:    return UIColor(red: 1.0, green: 0.7, blue: 0.0, alpha: 1)
-        case .xarrStealth:  return UIColor(red: 0.4, green: 0.4, blue: 0.8, alpha: 1)
-        case .xarrArmored:  return UIColor(red: 0.3, green: 0.7, blue: 0.4, alpha: 1)
-        case .xarrBoss:     return UIColor(red: 1.0, green: 0.1, blue: 0.5, alpha: 1)
+        case .xarrScout:    return UIColor(red: 0.91, green: 0.31, blue: 0.31, alpha: 1) // Red Bloon
+        case .xarrTank:     return UIColor(red: 0.31, green: 0.69, blue: 0.38, alpha: 1) // Green Bloon
+        case .xarrSwarm:    return UIColor(red: 0.31, green: 0.56, blue: 0.91, alpha: 1) // Blue Bloon
+        case .xarrStealth:  return UIColor(red: 0.91, green: 0.44, blue: 0.69, alpha: 1) // Pink Bloon
+        case .xarrArmored:  return UIColor(red: 0.75, green: 0.63, blue: 0.38, alpha: 1) // Ceramic
+        case .xarrBoss:     return UIColor(red: 0.30, green: 0.30, blue: 0.40, alpha: 1) // MOAB gray
         }
     }
 
     private static func abbreviation(for type: EnemyType) -> String {
         switch type {
-        case .xarrScout:    return "S"
-        case .xarrTank:     return "T"
-        case .xarrSwarm:    return "SW"
-        case .xarrStealth:  return "ST"
-        case .xarrArmored:  return "A"
-        case .xarrBoss:     return "BOSS"
+        case .xarrScout:    return "🔴"
+        case .xarrTank:     return "🟢"
+        case .xarrSwarm:    return "🔵"
+        case .xarrStealth:  return "🩷"
+        case .xarrArmored:  return "🏺"
+        case .xarrBoss:     return "💀"
         }
     }
 }

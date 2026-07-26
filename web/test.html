@@ -1,0 +1,17 @@
+<html><body>
+<p id="test">LOADING...</p>
+<script>
+window.onerror = function(msg) { document.getElementById('test').textContent = 'ERR: ' + msg.substring(0,200); };
+</script>
+<script>
+try {
+  // Load just the TOWERS + ENEMIES part from game.js
+  var SCRIPT_OK = "NO";
+  const canvas = {getContext:()=>{}};
+  const document = {getElementById:()=>null};
+  // Simulate loading up to ENEMIES
+  var x = 1;
+} catch(e) { document.getElementById('test').textContent = 'FAIL: '+e.message; }
+document.getElementById('test').textContent = 'PART1 OK';
+</script>
+</body></html>

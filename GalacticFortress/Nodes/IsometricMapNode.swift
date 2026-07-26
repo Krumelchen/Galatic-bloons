@@ -73,6 +73,7 @@ final class IsometricMapNode: SKNode {
                 // Isometric depth: higher row = drawn first (behind lower rows)
                 tile.zPosition = CGFloat(cols + rows - col - row)
 
+                addShadow(to: tile)
                 tileNodes[col][row] = tile
                 addChild(tile)
             }
@@ -92,9 +93,46 @@ final class IsometricMapNode: SKNode {
         path.addLine(to: CGPoint(x: center.x - w/2, y: center.y))      // left
         path.closeSubpath()
 
+        // ── 2.5D Extrusion ──────────────────────────────────────
+        // Shadow / bottom wall (darker, shifted down-right)
+        let extPath = CGMutablePath()
+        // Right wall
+        extPath.move(to: CGPoint(x: center.x + w/2, y: center.y))
+        extPath.addLine(to: CGPoint(x: center.x, y: center.y - h/2))
+        extPath.addLine(to: CGPoint(x: center.x + 4, y: center.y - h/2 + 6))
+        extPath.addLine(to: CGPoint(x: center.x + w/2 + 4, y: center.y + 6))
+        extPath.closeSubpath()
+
+        // Bottom wall
+        extPath.move(to: CGPoint(x: center.x, y: center.y - h/2))
+        extPath.addLine(to: CGPoint(x: center.x - w/2, y: center.y))
+        extPath.addLine(to: CGPoint(x: center.x - w/2 + 4, y: center.y + 6))
+        extPath.addLine(to: CGPoint(x: center.x + 4, y: center.y - h/2 + 6))
+        extPath.closeSubpath()
+
         let tile = SKShapeNode(path: path)
         tile.lineWidth = 1
         tile.name = "tile_\(col)_\(row)"
+
+        // Add extruded walls as child nodes
+        let extNode = SKShapeNode(path: extPath)
+        extNode.fillColor = UIColor(white: 0.08, alpha: 1)
+        extNode.strokeColor = .clear
+        extNode.zPosition = -0.5
+        tile.addChild(extNode)
+
+        return tile
+    }
+
+    /// Adds a shadow diamond beneath a tile for extra depth.
+    private func addShadow(to tile: SKShapeNode) -> SKShapeNode {
+        guard let path = tile.path else { return tile }
+        let shadow = SKShapeNode(path: path)
+        shadow.fillColor = UIColor(white: 0, alpha: 0.3)
+        shadow.strokeColor = .clear
+        shadow.position = CGPoint(x: 6, y: -4)
+        shadow.zPosition = -1
+        tile.addChild(shadow)
         return tile
     }
 
