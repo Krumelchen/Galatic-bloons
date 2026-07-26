@@ -1,8 +1,4 @@
 ﻿var SCRIPT_OK = "NO";
-// Mobile detection – BTD6 side-by-side layout on phones
-if (window.innerWidth < 900 || ('ontouchstart' in window && window.innerWidth < 1100)) {
-  document.body.classList.add('mobile-layout');
-}
 const canvas = document.getElementById("game");
 const ctx = canvas.getContext("2d");
 SCRIPT_OK = "CANVAS_OK";

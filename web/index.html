@@ -19,12 +19,16 @@
       </div>
     </header>
 
-    <main>
-      <canvas id="game" width="1024" height="576"></canvas>
-    </main>
+    <div class="game-area">
+      <main>
+        <canvas id="game" width="1024" height="576"></canvas>
+      </main>
+      <div class="tower-panel">
+        <div class="tower-row" id="towerButtons"></div>
+      </div>
+    </div>
 
-    <section class="controls">
-      <div class="tower-row" id="towerButtons"></div>
+    <div class="bottom-bar">
       <div class="actions">
         <button id="startWave">▶ Start</button>
         <button id="autoWaveBtn">🔄 Auto</button>
@@ -39,7 +43,7 @@
         <button id="abilBoost">⚡ Boost (30💰)</button>
       </div>
       <p id="hint">🌿 Tower auswählen und auf eine freie Fläche tippen</p>
-    </section>
+    </div>
 
     <!-- Upgrade Popup -->
     <div id="upgradePopup" class="popup hidden">
