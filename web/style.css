@@ -303,3 +303,128 @@ canvas {
   .tower-row button { min-height: 26px; }
   .actions button { font-size: 7px; }
 }
+
+/* ── BTD6 Mobile Layout (Landscape / kleine Screens) ── */
+@media (max-width: 800px) and (orientation: landscape), (max-height: 500px) {
+  #app {
+    display: grid;
+    grid-template-columns: 1fr auto;
+    grid-template-rows: auto 1fr auto auto;
+    gap: 3px;
+    padding: 3px;
+    max-width: 100%;
+    height: 100vh;
+    height: 100dvh;
+    overflow: hidden;
+  }
+  
+  /* HUD oben über beide Spalten */
+  .hud {
+    grid-column: 1 / -1;
+    grid-row: 1;
+    margin: 0;
+    padding: 2px 6px;
+    gap: 3px;
+    border-radius: 6px;
+  }
+  .hud > div { font-size: 9px; padding: 1px 4px; white-space: nowrap; }
+  .hud-actions button { font-size: 11px; padding: 1px 4px; }
+  #score { display: none; }
+  
+  /* Canvas links – fill available space */
+  main {
+    grid-column: 1;
+    grid-row: 2;
+    padding: 2px;
+    margin: 0;
+    overflow: hidden;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  canvas {
+    width: 100% !important;
+    height: auto !important;
+    max-height: 100%;
+  }
+  
+  /* Tower-Panel rechts (scrollbar, BTD6-Style) */
+  .controls {
+    grid-column: 2;
+    grid-row: 2;
+    margin: 0;
+    padding: 4px;
+    display: flex;
+    flex-direction: column;
+    width: 72px;
+    min-width: 60px;
+    overflow-y: auto;
+    overflow-x: hidden;
+    max-height: calc(100vh - 80px);
+  }
+  .tower-row {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    margin: 0;
+    overflow-y: auto;
+    flex: 1;
+  }
+  .tower-row button {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    min-height: 44px;
+    padding: 3px 2px;
+    gap: 0;
+    font-size: 8px;
+    border-radius: 5px;
+  }
+  .tower-row button .tower-icon { font-size: 14px; }
+  .tower-row button .tower-label { font-size: 7px; display: block; }
+  .tower-row button .tower-cost { font-size: 7px; }
+  
+  /* Actions unten */
+  .actions {
+    grid-column: 1 / -1;
+    grid-row: 3;
+    display: flex;
+    gap: 2px;
+    margin: 0;
+    flex-wrap: nowrap;
+  }
+  .actions button {
+    font-size: 8px;
+    padding: 3px 4px;
+    flex: 1;
+    white-space: nowrap;
+    min-height: 26px;
+  }
+  
+  /* Abilities */
+  .abilities {
+    grid-column: 1 / -1;
+    grid-row: 4;
+    margin: 0;
+    gap: 2px;
+  }
+  .abilities button { font-size: 7px; padding: 2px 2px; }
+  
+  #hint { font-size: 7px; min-height: 0; margin: 0; }
+  
+  /* Popups kleiner */
+  .popup-content { min-width: 180px; padding: 10px; margin: 5px; }
+  .popup-content h3 { font-size: 12px; }
+  .popup-content button { padding: 5px; font-size: 10px; }
+  .shop-item { padding: 4px; }
+  .shop-item .name { font-size: 10px; }
+  .shop-item button { padding: 4px 8px; font-size: 10px; }
+}
+
+/* Extra schmale Tower-Panel auf sehr kleinen Screens */
+@media (max-width: 400px) and (orientation: landscape) {
+  .controls { width: 58px; min-width: 50px; }
+  .tower-row button { min-height: 36px; }
+  .tower-row button .tower-icon { font-size: 11px; }
+  .tower-row button .tower-label { display: none; }
+}
