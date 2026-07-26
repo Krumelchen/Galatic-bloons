@@ -78,32 +78,39 @@ const ENEMIES = {
   xarrBAD:     { name:"B.A.D.",       hp:15000,speed: 0.22, reward: 2500, coreDmg: 400,color:"#ff00ff", armor:0.45, immune:["ionSlow","empPulse","quantumDisruptor"], boss:true }
 };
 
-const WAVES = [
-  [{type:"xarrScout",count:6}],[{type:"xarrScout",count:8},{type:"xarrSwarm",count:4}],
-  [{type:"xarrTank",count:2},{type:"xarrScout",count:10}],[{type:"xarrStealth",count:4},{type:"xarrSwarm",count:8}],
-  [{type:"xarrRainbow",count:6},{type:"xarrSwarm",count:12}],
-  [{type:"xarrTank",count:4},{type:"xarrArmored",count:3},{type:"xarrScout",count:10}],
-  [{type:"xarrBoss",count:1},{type:"xarrRainbow",count:5}],[{type:"xarrStealth",count:8},{type:"xarrSwarm",count:14}],
-  [{type:"xarrTank",count:5},{type:"xarrLead",count:2},{type:"xarrScout",count:12}],
-  [{type:"xarrBoss",count:1},{type:"xarrDDT",count:1},{type:"xarrArmored",count:6}],
-  [{type:"xarrBlack",count:6},{type:"xarrWhite",count:6}],[{type:"xarrPurple",count:8},{type:"xarrSwarm",count:16}],
-  [{type:"xarrBFB",count:1},{type:"xarrLead",count:5}],[{type:"xarrGold",count:10},{type:"xarrScout",count:8}],
-  [{type:"xarrGhost",count:8},{type:"xarrBlack",count:6}],[{type:"xarrBoss",count:2},{type:"xarrDDT",count:2}],
-  [{type:"xarrTank",count:8},{type:"xarrArmored",count:8},{type:"xarrRainbow",count:10}],
-  [{type:"xarrZOMG",count:1},{type:"xarrBlack",count:8},{type:"xarrWhite",count:8}],
-  [{type:"xarrPurple",count:10},{type:"xarrGold",count:8},{type:"xarrGhost",count:6}],
-  [{type:"xarrBFB",count:2},{type:"xarrDDT",count:3},{type:"xarrLead",count:8}],
-  [{type:"xarrBoss",count:3},{type:"xarrZebra",count:15},{type:"xarrRainbow",count:12}],
-  [{type:"xarrDDT",count:4},{type:"xarrBlack",count:10},{type:"xarrWhite",count:10}],
-  [{type:"xarrBAD",count:1},{type:"xarrPurple",count:10},{type:"xarrGold",count:10}],
-  [{type:"xarrBFB",count:3},{type:"xarrZOMG",count:1},{type:"xarrDDT",count:4}],
-  [{type:"xarrBoss",count:4},{type:"xarrGhost",count:15},{type:"xarrArmored",count:12}],
-  [{type:"xarrBAD",count:1},{type:"xarrBFB",count:2},{type:"xarrBlack",count:12},{type:"xarrWhite",count:12}],
-  [{type:"xarrZOMG",count:2},{type:"xarrDDT",count:5},{type:"xarrPurple",count:12}],
-  [{type:"xarrBAD",count:2},{type:"xarrBFB",count:3},{type:"xarrGhost",count:15}],
-  [{type:"xarrZOMG",count:3},{type:"xarrBAD",count:1},{type:"xarrDDT",count:6}],
-  [{type:"xarrBAD",count:2},{type:"xarrBFB",count:4},{type:"xarrZOMG",count:2},{type:"xarrDDT",count:8}]
-];
+const WAVES = (function(){
+  var w=[],S="xarrScout",B="xarrSwarm",T="xarrTank",P="xarrStealth",C="xarrArmored",L="xarrLead",R="xarrRainbow",Z="xarrZebra",D="xarrDDT",K="xarrBlack",H="xarrWhite",U="xarrPurple",G="xarrGold",O="xarrGhost",M="xarrBoss",F="xarrBFB",XM="xarrZOMG",BA="xarrBAD";
+  var n=function(t,c){return{type:t,count:c}};
+  for(var i=0;i<100;i++){
+    var s=i+1,h=function(v){return Math.max(1,Math.round(v*(1+i*0.06)))};if(s===100)w.push([n(BA,1),n(F,3),n(XM,2),n(D,8),n(C,20),n(L,15)]);
+    else if(s===90)w.push([n(XM,3),n(F,4),n(D,6),n(BA,1),n(K,12),n(H,12)]);
+    else if(s===80)w.push([n(XM,2),n(F,3),n(D,8),n(C,15),n(U,12)]);
+    else if(s===70)w.push([n(F,4),n(D,6),n(K,12),n(H,12),n(U,12)]);
+    else if(s===60)w.push([n(M,4),n(F,2),n(D,5),n(C,12),n(L,10)]);
+    else if(s===50)w.push([n(XM,1),n(F,2),n(M,3),n(D,4)]);
+    else if(s===40)w.push([n(F,2),n(D,3),n(K,8),n(H,8),n(C,10)]);
+    else if(s===30)w.push([n(M,2),n(F,1),n(D,2),n(L,6)]);
+    else if(s===20)w.push([n(F,1),n(D,2),n(C,10),n(L,5)]);
+    else if(s===10)w.push([n(M,1),n(L,3),n(C,5)]);
+    else if(s%10===9)w.push([n(BA,s>89?1:0),n(XM,s>79?1:0),n(F,s>49?2:1),n(D,h(3+s/10)),n(C,h(5+s/5))]);
+    else if(s%5===0)w.push([n(G,h(8)),n(R,h(6)),n(Z,h(4+s/5)),n(O,s>25?h(4):0)]);
+    else if(s<5)w.push([n(S,h(6+i*2)),n(B,i>1?h(3+i):0)]);
+    else if(s<10)w.push([n(S,h(5+i)),n(B,h(3+i)),n(T,i>6?h(1):0)]);
+    else if(s<15)w.push([n(T,h(1+i/3)),n(C,h(1+i/4)),n(P,h(2)),n(R,h(2))]);
+    else if(s<20)w.push([n(T,h(2+i/4)),n(C,h(2+i/5)),n(P,h(3)),n(L,h(1+i/8))]);
+    else if(s<25)w.push([n(T,h(3+i/4)),n(C,h(3+i/4)),n(L,h(2)),n(K,h(2)),n(H,h(2))]);
+    else if(s<35)w.push([n(C,h(4+i/5)),n(L,h(3+i/6)),n(K,h(3)),n(H,h(3)),n(U,h(3)),n(D,s>29?h(1):0)]);
+    else if(s<45)w.push([n(C,h(5+i/4)),n(L,h(4+i/5)),n(K,h(4)),n(H,h(4)),n(U,h(4)),n(D,h(1+i/10)),n(Z,h(5))]);
+    else if(s<55)w.push([n(C,h(6+i/3)),n(L,h(5+i/4)),n(K,h(5)),n(H,h(5)),n(U,h(5)),n(D,h(2+i/8)),n(Z,h(6)),n(O,h(4))]);
+    else if(s<65)w.push([n(C,h(8+i/3)),n(L,h(6+i/3)),n(K,h(6)),n(H,h(6)),n(U,h(6)),n(D,h(3+i/6)),n(Z,h(8)),n(O,h(5)),n(G,h(3))]);
+    else if(s<75)w.push([n(C,h(10+i/3)),n(L,h(8+i/3)),n(K,h(8)),n(H,h(8)),n(U,h(8)),n(D,h(4+i/5)),n(Z,h(10)),n(O,h(6)),n(G,h(4))]);
+    else if(s<85)w.push([n(C,h(12+i/3)),n(L,h(10+i/3)),n(K,h(10)),n(H,h(10)),n(U,h(10)),n(D,h(5+i/4)),n(Z,h(12)),n(O,h(8)),n(G,h(5))]);
+    else if(s<95)w.push([n(C,h(14+i/4)),n(L,h(12+i/4)),n(K,h(12)),n(H,h(12)),n(U,h(12)),n(D,h(6+i/3)),n(Z,h(14)),n(O,h(10)),n(G,h(6))]);
+    else w.push([n(C,h(16+i/5)),n(L,h(14+i/5)),n(K,h(14)),n(H,h(14)),n(U,h(14)),n(D,h(7+i/3)),n(Z,h(16)),n(O,h(12)),n(G,h(8))]);
+    w[s-1]=w[s-1].filter(function(r){return r.count>0});
+  }
+  return w;
+})();
 
 // ── Maps ────────────────────────────────────────────────────────
 const MAPS = {
