@@ -246,185 +246,132 @@ canvas {
   100% { opacity: 0; transform: translateY(-40px) scale(1.2); }
 }
 
-/* ── Mobile Responsive ── */
-@media (max-width: 800px) {
-  #app { max-width: 100%; padding: 4px; }
-  .hud { padding: 3px 5px; gap: 2px; }
-  .hud > div { font-size: 10px; padding: 2px 5px; }
-  .tower-row { gap: 3px; }
-  .tower-row button { min-height: 40px; padding: 3px 2px; }
-  .tower-row button .tower-icon { font-size: 15px; }
-  .tower-row button .tower-label { font-size: 9px; }
-  .tower-row button .tower-cost { font-size: 8px; }
-  .controls { padding: 4px; }
-  .actions button { padding: 6px 3px; font-size: 10px; }
-  .hud-actions button { padding: 2px 5px; font-size: 12px; }
-  .abilities button { font-size: 9px; padding: 4px 2px; }
+/* ── BTD6 Mobile Layout (nur mit JS-Klasse) ── */
+.mobile-layout {
+  --app-pad: 2px;
+}
+.mobile-layout #app {
+  display: grid;
+  grid-template-columns: 1fr 70px;
+  grid-template-rows: auto 1fr auto auto;
+  gap: 2px;
+  padding: 2px;
+  max-width: 100%;
+  height: 100vh;
+  height: 100dvh;
+  overflow: hidden;
+}
+/* HUD oben */
+.mobile-layout .hud {
+  grid-column: 1 / -1;
+  grid-row: 1;
+  margin: 0;
+  padding: 2px 4px;
+  border-radius: 4px;
+  gap: 2px;
+}
+.mobile-layout .hud > div { font-size: 9px; padding: 1px 3px; white-space: nowrap; }
+.mobile-layout .hud-actions button { font-size: 11px; padding: 1px 3px; }
+.mobile-layout #score { display: none; }
+
+/* Canvas links */
+.mobile-layout main {
+  grid-column: 1;
+  grid-row: 2;
+  padding: 1px;
+  margin: 0;
+  overflow: hidden;
+  display: flex;
+  align-items: center;
+}
+.mobile-layout canvas {
+  width: 100% !important;
+  height: auto !important;
+  max-height: 100%;
 }
 
-@media (max-width: 600px) {
-  #app { padding: 3px; }
-  .hud { padding: 2px 4px; gap: 2px; border-radius: 6px; }
-  .hud > div { font-size: 9px; padding: 1px 3px; }
-  .tower-row { grid-template-columns: repeat(4, 1fr); gap: 2px; }
-  .tower-row button { min-height: 36px; padding: 2px 1px; border-radius: 5px; }
-  .tower-row button .tower-icon { font-size: 13px; }
-  .tower-row button .tower-label { font-size: 7px; }
-  .tower-row button .tower-cost { font-size: 7px; }
-  .controls { padding: 3px; border-radius: 6px; }
-  .actions { flex-wrap: wrap; gap: 3px; }
-  .actions button { padding: 5px 2px; font-size: 9px; flex: 1 1 30%; }
-  #hint { font-size: 9px; }
-  .abilities button { font-size: 8px; padding: 3px 1px; }
-  .popup-content { min-width: 200px; margin: 5px; padding: 12px; }
-  .popup-content h3 { font-size: 13px; }
-  .popup-content button { padding: 6px; font-size: 11px; }
-  .target-mode select { font-size: 10px; padding: 4px; }
-  #score { display: none; }
+/* Tower-Panel rechts (scrollbar, BTD6!) */
+.mobile-layout .controls {
+  grid-column: 2;
+  grid-row: 2;
+  margin: 0;
+  padding: 2px;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  width: 70px;
+  min-width: 60px;
+  border-radius: 4px;
+}
+.mobile-layout .tower-row {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  overflow-y: auto;
+  flex: 1;
+  grid-template-columns: none;
+}
+.mobile-layout .tower-row button {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  min-height: 48px;
+  padding: 2px 1px;
+  gap: 0;
+  font-size: 7px;
+  border-radius: 4px;
+  cursor: pointer;
+}
+.mobile-layout .tower-row button .tower-icon { font-size: 16px; }
+.mobile-layout .tower-row button .tower-label { font-size: 7px; display: block; line-height: 1; }
+.mobile-layout .tower-row button .tower-cost { font-size: 6px; }
+
+/* Aktionen unten */
+.mobile-layout .actions {
+  grid-column: 1 / -1;
+  grid-row: 3;
+  display: flex;
+  gap: 1px;
+  margin: 0;
+  flex-wrap: nowrap;
+}
+.mobile-layout .actions button {
+  font-size: 8px;
+  padding: 2px 2px;
+  flex: 1;
+  white-space: nowrap;
+  min-height: 24px;
+  border-radius: 4px;
 }
 
-/* Extra small / landscape phones */
-@media (max-width: 500px), (orientation: landscape) and (max-height: 500px) {
-  .hud > div { font-size: 8px; padding: 1px 2px; }
-  .hud-actions button { font-size: 10px; padding: 1px 3px; }
-  .tower-row button .tower-icon { font-size: 11px; }
-  .tower-row button .tower-label { display: none; } /* Hide labels, only icons */
-  .tower-row button .tower-cost { font-size: 6px; }
-  .tower-row button { min-height: 30px; }
-  .actions button { font-size: 8px; padding: 4px 1px; }
-  main { padding: 2px; border-radius: 4px; }
-  #hint { font-size: 7px; min-height: 10px; margin: 2px 0; }
-  .abilities button { font-size: 7px; padding: 2px 1px; }
+/* Abilities */
+.mobile-layout .abilities {
+  grid-column: 1 / -1;
+  grid-row: 4;
+  margin: 0;
+  gap: 1px;
 }
+.mobile-layout .abilities button { font-size: 7px; padding: 1px 1px; }
 
-@media (max-width: 350px) {
-  .hud > div { font-size: 7px; padding: 1px 2px; }
-  .tower-row button .tower-icon { font-size: 10px; }
-  .tower-row button { min-height: 26px; }
-  .actions button { font-size: 7px; }
-}
+.mobile-layout #hint { display: none; }
 
-/* ── BTD6 Mobile Layout (Landscape / kleine Screens) ── */
-@media (max-width: 800px) and (orientation: landscape), (max-height: 500px) {
-  #app {
-    display: grid;
-    grid-template-columns: 1fr auto;
-    grid-template-rows: auto 1fr auto auto;
-    gap: 3px;
-    padding: 3px;
-    max-width: 100%;
-    height: 100vh;
-    height: 100dvh;
-    overflow: hidden;
-  }
-  
-  /* HUD oben über beide Spalten */
-  .hud {
-    grid-column: 1 / -1;
-    grid-row: 1;
-    margin: 0;
-    padding: 2px 6px;
-    gap: 3px;
-    border-radius: 6px;
-  }
-  .hud > div { font-size: 9px; padding: 1px 4px; white-space: nowrap; }
-  .hud-actions button { font-size: 11px; padding: 1px 4px; }
-  #score { display: none; }
-  
-  /* Canvas links – fill available space */
-  main {
-    grid-column: 1;
-    grid-row: 2;
-    padding: 2px;
-    margin: 0;
-    overflow: hidden;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-  }
-  canvas {
-    width: 100% !important;
-    height: auto !important;
-    max-height: 100%;
-  }
-  
-  /* Tower-Panel rechts (scrollbar, BTD6-Style) */
-  .controls {
-    grid-column: 2;
-    grid-row: 2;
-    margin: 0;
-    padding: 4px;
-    display: flex;
-    flex-direction: column;
-    width: 72px;
-    min-width: 60px;
-    overflow-y: auto;
-    overflow-x: hidden;
-    max-height: calc(100vh - 80px);
-  }
-  .tower-row {
-    display: flex;
-    flex-direction: column;
-    gap: 2px;
-    margin: 0;
-    overflow-y: auto;
-    flex: 1;
-  }
-  .tower-row button {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    min-height: 44px;
-    padding: 3px 2px;
-    gap: 0;
-    font-size: 8px;
-    border-radius: 5px;
-  }
-  .tower-row button .tower-icon { font-size: 14px; }
-  .tower-row button .tower-label { font-size: 7px; display: block; }
-  .tower-row button .tower-cost { font-size: 7px; }
-  
-  /* Actions unten */
-  .actions {
-    grid-column: 1 / -1;
-    grid-row: 3;
-    display: flex;
-    gap: 2px;
-    margin: 0;
-    flex-wrap: nowrap;
-  }
-  .actions button {
-    font-size: 8px;
-    padding: 3px 4px;
-    flex: 1;
-    white-space: nowrap;
-    min-height: 26px;
-  }
-  
-  /* Abilities */
-  .abilities {
-    grid-column: 1 / -1;
-    grid-row: 4;
-    margin: 0;
-    gap: 2px;
-  }
-  .abilities button { font-size: 7px; padding: 2px 2px; }
-  
-  #hint { font-size: 7px; min-height: 0; margin: 0; }
-  
-  /* Popups kleiner */
-  .popup-content { min-width: 180px; padding: 10px; margin: 5px; }
-  .popup-content h3 { font-size: 12px; }
-  .popup-content button { padding: 5px; font-size: 10px; }
-  .shop-item { padding: 4px; }
-  .shop-item .name { font-size: 10px; }
-  .shop-item button { padding: 4px 8px; font-size: 10px; }
-}
+/* Popups auf mobile kleiner */
+.mobile-layout .popup-content { min-width: 160px; padding: 8px; margin: 3px; }
+.mobile-layout .popup-content h3 { font-size: 11px; }
+.mobile-layout .popup-content button { padding: 4px; font-size: 9px; margin-top: 4px; }
+.mobile-layout .target-mode select { font-size: 9px; padding: 2px; }
+.mobile-layout .shop-item { padding: 3px; }
+.mobile-layout .shop-item .name { font-size: 9px; }
+.mobile-layout .shop-item button { padding: 3px 4px; font-size: 9px; }
+.mobile-layout .map-option { padding: 5px; }
+.mobile-layout .map-option .map-icon { font-size: 18px; }
+.mobile-layout .map-option .map-name { font-size: 11px; }
 
-/* Extra schmale Tower-Panel auf sehr kleinen Screens */
-@media (max-width: 400px) and (orientation: landscape) {
-  .controls { width: 58px; min-width: 50px; }
-  .tower-row button { min-height: 36px; }
-  .tower-row button .tower-icon { font-size: 11px; }
-  .tower-row button .tower-label { display: none; }
+/* Extra schmal: Tower-Namen ausblenden */
+@media (max-width: 380px) {
+  .mobile-layout .controls { width: 52px; min-width: 44px; }
+  .mobile-layout .tower-row button { min-height: 38px; }
+  .mobile-layout .tower-row button .tower-icon { font-size: 13px; }
+  .mobile-layout .tower-row button .tower-label { display: none; }
+  .mobile-layout .tower-row button .tower-cost { font-size: 5px; }
 }
