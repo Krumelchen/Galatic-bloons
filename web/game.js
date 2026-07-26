@@ -46,14 +46,14 @@ let PATH, BUILD_SPOTS;
 
 // ── BTD5/6-inspired Tower Data ─────────────────────────────────
 const TOWERS = {
-  laserCannon:      { name: "Laser-Affe",  cost: 100, range: 2.8, rate: 0.9, dmg: 12, color:"#45d4ff", body:"#1a7ad5", icon:"🐵", desc:"Schießt Nüsse!", upgCost:80, upgMult:1.35, maxLvl:4 },
-  plasmaAoE:        { name: "Plasma-Hund", cost: 160, range: 2.5, rate: 0.55, dmg: 14, splash:1.2, color:"#c07aff", body:"#7a2bc4", icon:"🐶", desc:"Bellt Feuerbälle!", upgCost:120, upgMult:1.35, maxLvl:4 },
-  ionSlow:          { name: "Eis-Katze",   cost: 130, range: 2.8, rate: 0.95, dmg: 5, slow:{factor:0.5,dur:2.2}, color:"#6af0ff", body:"#2098b0", icon:"🐱", desc:"Eis-Atem❄️", upgCost:100, upgMult:1.35, maxLvl:4 },
-  empPulse:         { name: "EMP-Hase",    cost: 180, range: 2.8, rate: 0.38, dmg: 3, stun:1.3, color:"#ffe37a", body:"#b8962a", icon:"🐰", desc:"Springt & betäubt!", upgCost:140, upgMult:1.35, maxLvl:4 },
-  missileSilo:      { name: "Fuchs-Bogen", cost: 280, range: 4.0, rate: 0.38, dmg: 28, color:"#ff8d66", body:"#c04520", icon:"🦊", desc:"Scharfe Pfeile!", upgCost:220, upgMult:1.35, maxLvl:4 },
-  nanobotRepair:    { name: "Panda-Doc",   cost: 160, range: 0, rate: 0.28, heal: 3, color:"#76f0a0", body:"#2a9a4e", icon:"🐼", desc:"Heilt mit Bambus!", upgCost:120, upgMult:1.35, maxLvl:4 },
-  quantumDisruptor: { name: "Einhorn-Mag", cost: 400, range: 8, rate: 1.2, dmg: 100, teleport:true, color:"#db7dff", body:"#9a2abf", icon:"🦄", desc:"Magischer Teleport!", upgCost:300, upgMult:1.35, maxLvl:4 },
-  solarCollector:   { name: "Bienen-Korb", cost: 200, range: 0, rate: 0.18, income: 10, color:"#ffd54a", body:"#c89020", icon:"🐝", desc:"Sammelt Credits!", upgCost:150, upgMult:1.35, maxLvl:4 }
+  laserCannon:      { name: "Laser-Affe",  cost: 120, range: 2.5, rate: 0.8, dmg: 10, color:"#45d4ff", body:"#1a7ad5", icon:"🐵", desc:"Schießt Nüsse!", upgCost:100, upgMult:1.35, maxLvl:4 },
+  plasmaAoE:        { name: "Plasma-Hund", cost: 200, range: 2.2, rate: 0.5, dmg: 12, splash:1.1, color:"#c07aff", body:"#7a2bc4", icon:"🐶", desc:"Bellt Feuerbälle!", upgCost:160, upgMult:1.35, maxLvl:4 },
+  ionSlow:          { name: "Eis-Katze",   cost: 160, range: 2.5, rate: 0.85, dmg: 4, slow:{factor:0.5,dur:2.0}, color:"#6af0ff", body:"#2098b0", icon:"🐱", desc:"Eis-Atem❄️", upgCost:130, upgMult:1.35, maxLvl:4 },
+  empPulse:         { name: "EMP-Hase",    cost: 220, range: 2.5, rate: 0.35, dmg: 2, stun:1.2, color:"#ffe37a", body:"#b8962a", icon:"🐰", desc:"Springt & betäubt!", upgCost:180, upgMult:1.35, maxLvl:4 },
+  missileSilo:      { name: "Fuchs-Bogen", cost: 350, range: 3.5, rate: 0.35, dmg: 22, color:"#ff8d66", body:"#c04520", icon:"🦊", desc:"Scharfe Pfeile!", upgCost:280, upgMult:1.35, maxLvl:4 },
+  nanobotRepair:    { name: "Panda-Doc",   cost: 200, range: 0, rate: 0.25, heal: 2, color:"#76f0a0", body:"#2a9a4e", icon:"🐼", desc:"Heilt mit Bambus!", upgCost:160, upgMult:1.35, maxLvl:4 },
+  quantumDisruptor: { name: "Einhorn-Mag", cost: 500, range: 7, rate: 1.0, dmg: 80, teleport:true, color:"#db7dff", body:"#9a2abf", icon:"🦄", desc:"Magischer Teleport!", upgCost:400, upgMult:1.35, maxLvl:4 },
+  solarCollector:   { name: "Bienen-Korb", cost: 250, range: 0, rate: 0.15, income: 8, color:"#ffd54a", body:"#c89020", icon:"🐝", desc:"Sammelt Credits!", upgCost:200, upgMult:1.35, maxLvl:4 }
 };
 
 // ── BTD5/6-inspired Bloon Enemies ──────────────────────────────
@@ -82,7 +82,7 @@ const WAVES = (function(){
   var w=[],S="xarrScout",B="xarrSwarm",T="xarrTank",P="xarrStealth",C="xarrArmored",L="xarrLead",R="xarrRainbow",Z="xarrZebra",D="xarrDDT",K="xarrBlack",H="xarrWhite",U="xarrPurple",G="xarrGold",O="xarrGhost",M="xarrBoss",F="xarrBFB",XM="xarrZOMG",BA="xarrBAD";
   var n=function(t,c){return{type:t,count:c}};
   for(var i=0;i<100;i++){
-    var s=i+1,h=function(v){return Math.max(1,Math.round(v*(1+i*0.06)))};if(s===100)w.push([n(BA,1),n(F,3),n(XM,2),n(D,8),n(C,20),n(L,15)]);
+    var s=i+1,h=function(v){return Math.max(1,Math.round(v*(1+i*0.08)))};if(s===100)w.push([n(BA,1),n(F,3),n(XM,2),n(D,8),n(C,20),n(L,15)]);
     else if(s===90)w.push([n(XM,3),n(F,4),n(D,6),n(BA,1),n(K,12),n(H,12)]);
     else if(s===80)w.push([n(XM,2),n(F,3),n(D,8),n(C,15),n(U,12)]);
     else if(s===70)w.push([n(F,4),n(D,6),n(K,12),n(H,12),n(U,12)]);
@@ -259,7 +259,7 @@ function getUpgradeCost(key) {
 function applyGlobalUpgrades() {
   const extraCredits = globalUpgrades.startingCredits * UPGRADES.startingCredits.perLvl;
   const extraCore = globalUpgrades.coreBoost * UPGRADES.coreBoost.perLvl;
-  return { credits: 500 + extraCredits, core: 150 + extraCore, maxCore: 150 + extraCore };
+  return { credits: 400 + extraCredits, core: 120 + extraCore, maxCore: 120 + extraCore };
 }
 function getTowerStats(towerDef, level) {
   const dmgMult = 1 + globalUpgrades.towerDamage * 0.10;
