@@ -47,14 +47,14 @@ let PATH, BUILD_SPOTS;
 
 // ── BTD5/6-inspired Tower Data ─────────────────────────────────
 const TOWERS = {
-  laserCannon:      { name: "Laser-Affe",  cost: 120, range: 2.5, rate: 0.8, dmg: 10, color:"#45d4ff", body:"#1a7ad5", icon:"🐵", desc:"Schießt Nüsse!", upgCost:100, upgMult:1.35, maxLvl:4 },
-  plasmaAoE:        { name: "Plasma-Hund", cost: 200, range: 2.2, rate: 0.5, dmg: 12, splash:1.1, color:"#c07aff", body:"#7a2bc4", icon:"🐶", desc:"Bellt Feuerbälle!", upgCost:160, upgMult:1.35, maxLvl:4 },
+  laserCannon:      { name: "Laser-Affe",  cost: 120, range: 2.5, rate: 0.8, dmg: 12, color:"#45d4ff", body:"#1a7ad5", icon:"🐵", desc:"Schießt Nüsse!", upgCost:100, upgMult:1.35, maxLvl:4 },
+  plasmaAoE:        { name: "Plasma-Hund", cost: 200, range: 2.2, rate: 0.5, dmg: 16, splash:1.1, color:"#c07aff", body:"#7a2bc4", icon:"🐶", desc:"Bellt Feuerbälle!", upgCost:160, upgMult:1.35, maxLvl:4 },
   ionSlow:          { name: "Eis-Katze",   cost: 160, range: 2.5, rate: 0.85, dmg: 4, slow:{factor:0.5,dur:2.0}, color:"#6af0ff", body:"#2098b0", icon:"🐱", desc:"Eis-Atem❄️", upgCost:130, upgMult:1.35, maxLvl:4 },
   empPulse:         { name: "EMP-Hase",    cost: 220, range: 2.5, rate: 0.35, dmg: 2, stun:1.2, color:"#ffe37a", body:"#b8962a", icon:"🐰", desc:"Springt & betäubt!", upgCost:180, upgMult:1.35, maxLvl:4 },
-  missileSilo:      { name: "Fuchs-Bogen", cost: 350, range: 3.5, rate: 0.35, dmg: 22, color:"#ff8d66", body:"#c04520", icon:"🦊", desc:"Scharfe Pfeile!", upgCost:280, upgMult:1.35, maxLvl:4 },
+  missileSilo:      { name: "Fuchs-Bogen", cost: 350, range: 3.5, rate: 0.5, dmg: 35, color:"#ff8d66", body:"#c04520", icon:"🦊", desc:"Scharfe Pfeile!", upgCost:280, upgMult:1.35, maxLvl:4 },
   nanobotRepair:    { name: "Panda-Doc",   cost: 200, range: 0, rate: 0.25, heal: 2, color:"#76f0a0", body:"#2a9a4e", icon:"🐼", desc:"Heilt mit Bambus!", upgCost:160, upgMult:1.35, maxLvl:4 },
-  quantumDisruptor: { name: "Einhorn-Mag", cost: 500, range: 7, rate: 1.0, dmg: 80, teleport:true, color:"#db7dff", body:"#9a2abf", icon:"🦄", desc:"Magischer Teleport!", upgCost:400, upgMult:1.35, maxLvl:4 },
-  solarCollector:   { name: "Bienen-Korb", cost: 250, range: 0, rate: 0.15, income: 8, color:"#ffd54a", body:"#c89020", icon:"🐝", desc:"Sammelt Credits!", upgCost:200, upgMult:1.35, maxLvl:4 }
+  quantumDisruptor: { name: "Einhorn-Mag", cost: 650, range: 5.5, rate: 0.65, dmg: 65, teleport:true, color:"#db7dff", body:"#9a2abf", icon:"🦄", desc:"Magischer Teleport!", upgCost:480, upgMult:1.35, maxLvl:4 },
+  solarCollector:   { name: "Bienen-Korb", cost: 250, range: 0, rate: 0.15, income: 14, color:"#ffd54a", body:"#c89020", icon:"🐝", desc:"Sammelt Credits!", upgCost:200, upgMult:1.35, maxLvl:4 }
 };
 
 // ── BTD5/6-inspired Bloon Enemies ──────────────────────────────
@@ -67,7 +67,7 @@ const ENEMIES = {
   xarrLead:    { name:"Lead Bloon",   hp: 380, speed: 0.62, reward: 28, coreDmg: 20, color:"#808890", armor:0.5, immune:["laserCannon"], bloon:true },
   xarrRainbow: { name:"Rainbow",      hp: 90,  speed: 1.25, reward: 12, coreDmg: 7,  color:"#ff6080", splits:true, bloon:true },
   xarrZebra:   { name:"Zebra Bloon",  hp: 70,  speed: 1.75, reward: 9, coreDmg: 5,  color:"#2a2a2a", bloon:true },
-  xarrDDT:     { name:"D.D.T.",       hp: 700, speed: 2.4,  reward: 45, coreDmg: 30, color:"#1a1a2a", stealth:true, armor:0.32, boss:true },
+  xarrDDT:     { name:"D.D.T.",       hp: 550, speed: 2.0,  reward: 45, coreDmg: 30, color:"#1a1a2a", stealth:true, armor:0.32, boss:true },
   xarrBlack:   { name:"Black Bloon",  hp: 120, speed: 1.5,  reward: 14, coreDmg: 6,  color:"#1a1a1a", immune:["plasmaAoE","empPulse","missileSilo"], bloon:true },
   xarrWhite:   { name:"White Bloon",  hp: 100, speed: 1.4,  reward: 13, coreDmg: 6,  color:"#f0f0f0", immune:["ionSlow"], bloon:true },
   xarrPurple:  { name:"Purple Bloon", hp: 130, speed: 1.35, reward: 16, coreDmg: 7,  color:"#b070d0", immune:["quantumDisruptor"], bloon:true },
@@ -76,7 +76,7 @@ const ENEMIES = {
   xarrBoss:    { name:"M.O.A.B.",     hp: 2000,speed: 0.55, reward: 180, coreDmg: 80, color:"#ff4ec5", armor:0.25, boss:true },
   xarrBFB:     { name:"B.F.B.",       hp: 3500,speed: 0.42, reward: 350, coreDmg: 140,color:"#ff3030", armor:0.30, boss:true },
   xarrZOMG:    { name:"Z.O.M.G.",     hp: 7000,speed: 0.32, reward: 700, coreDmg: 250,color:"#30ff30", armor:0.38, immune:["ionSlow"], boss:true },
-  xarrBAD:     { name:"B.A.D.",       hp:15000,speed: 0.22, reward: 2500, coreDmg: 400,color:"#ff00ff", armor:0.45, immune:["ionSlow","empPulse","quantumDisruptor"], boss:true }
+  xarrBAD:     { name:"B.A.D.",       hp:10000,speed: 0.22, reward: 2500, coreDmg: 400,color:"#ff00ff", armor:0.35, immune:["ionSlow","empPulse","quantumDisruptor"], boss:true }
 };
 
 const WAVES = (function(){
@@ -90,8 +90,8 @@ const WAVES = (function(){
     else if(s===60)w.push([n(M,4),n(F,2),n(D,5),n(C,12),n(L,10)]);
     else if(s===50)w.push([n(XM,1),n(F,2),n(M,3),n(D,4)]);
     else if(s===40)w.push([n(F,2),n(D,3),n(K,8),n(H,8),n(C,10)]);
-    else if(s===30)w.push([n(M,2),n(F,1),n(D,2),n(L,6)]);
-    else if(s===20)w.push([n(F,1),n(D,2),n(C,10),n(L,5)]);
+    else if(s===30)w.push([n(F,1),n(M,2),n(D,2),n(L,6)]);
+    else if(s===20)w.push([n(M,2),n(D,1),n(C,8),n(L,5)]);
     else if(s===10)w.push([n(M,1),n(L,3),n(C,5)]);
     else if(s%10===9)w.push([n(BA,s>89?1:0),n(XM,s>79?1:0),n(F,s>49?2:1),n(D,h(3+s/10)),n(C,h(5+s/5))]);
     else if(s%5===0)w.push([n(G,h(8)),n(R,h(6)),n(Z,h(4+s/5)),n(O,s>25?h(4):0)]);
@@ -245,12 +245,20 @@ function getWaveBonus(waveNum) {
 // ── Global Upgrades ─────────────────────────────────────────────
 const UPGRADES = {
   startingCredits: { name: "Start-Credits +", baseCost: 300, costMult: 1.8, maxLvl: 4, desc: "Mehr Credits zu Beginn", perLvl: 50 },
-  towerDamage:     { name: "Turm Schaden +", baseCost: 400, costMult: 2.0, maxLvl: 3, desc: "+15% Turm-Schaden", perLvl: 15 },
-  towerRange:      { name: "Turm Reichweite +", baseCost: 350, costMult: 1.9, maxLvl: 3, desc: "+10% Reichweite", perLvl: 10 },
-  fireRate:        { name: "Feuerrate +", baseCost: 500, costMult: 2.2, maxLvl: 2, desc: "+12% Feuerrate", perLvl: 12 },
+  towerDamage:     { name: "Turm Schaden +", baseCost: 400, costMult: 2.0, maxLvl: 3, desc: "+10% Turm-Schaden", perLvl: 10 },
+  towerRange:      { name: "Turm Reichweite +", baseCost: 350, costMult: 1.9, maxLvl: 3, desc: "+8% Reichweite", perLvl: 8 },
+  fireRate:        { name: "Feuerrate +", baseCost: 500, costMult: 2.2, maxLvl: 2, desc: "+8% Feuerrate", perLvl: 8 },
   coreBoost:       { name: "Kern-Leben +", baseCost: 250, costMult: 1.6, maxLvl: 4, desc: "+25 Kern-Leben", perLvl: 25 }
 };
 const globalUpgrades = { startingCredits:0, towerDamage:0, towerRange:0, fireRate:0, coreBoost:0 };
+try {
+  const savedUpgrades = JSON.parse(ls.getItem("galacticBloons_upgrades"));
+  if (savedUpgrades && typeof savedUpgrades === "object") {
+    for (const k of Object.keys(globalUpgrades)) {
+      if (typeof savedUpgrades[k] === "number") globalUpgrades[k] = savedUpgrades[k];
+    }
+  }
+} catch(e) {}
 function getUpgradeCost(key) {
   const u = UPGRADES[key];
   return Math.floor(u.baseCost * Math.pow(u.costMult, globalUpgrades[key]));
@@ -266,7 +274,7 @@ function getTowerStats(towerDef, level) {
   const dmgMult = 1 + globalUpgrades.towerDamage * (UPGRADES.towerDamage.perLvl / 100);
   const rangeMult = 1 + globalUpgrades.towerRange * (UPGRADES.towerRange.perLvl / 100);
   const rateMult = 1 + globalUpgrades.fireRate * (UPGRADES.fireRate.perLvl / 100);
-  const lvlBonus = 1 + (level - 1) * 0.18;
+  const lvlBonus = 1 + (level - 1) * 0.28;
   return {
     damage: towerDef.dmg ? Math.round(towerDef.dmg * dmgMult * lvlBonus) : 0,
     range: towerDef.range * rangeMult * (1 + (level - 1) * 0.1),
@@ -468,7 +476,18 @@ function applyTowerEffects(t, target) {
   const def = TOWERS[t.type];
   if (def.slow) { target.speedMul = Math.min(target.speedMul, def.slow.factor); target.slow = Math.max(target.slow, def.slow.dur); }
   if (def.stun) { target.stun = Math.max(target.stun, def.stun); }
-  if (def.teleport) { target.idx = 0; target.prog = 0; const p = toPx(PATH[0][0], PATH[0][1]); target.x = p.x; target.y = p.y; }
+  if (def.teleport) {
+    if (ENEMIES[target.typeKey].boss) {
+      target.idx = Math.max(0, target.idx - 2);
+      target.prog = 0;
+    } else {
+      target.idx = 0;
+      target.prog = 0;
+    }
+    const p = toPx(PATH[target.idx][0], PATH[target.idx][1]);
+    target.x = p.x;
+    target.y = p.y;
+  }
 }
 
 function selectTarget(validTargets, pos, mode) {
@@ -498,9 +517,15 @@ function damageEnemy(e, rawDmg) {
     state.score += ed.reward;
     if (ed.bloon) spawnBloonPop(e.x, e.y, ed.color);
     else spawnExplosion(e.x, e.y, ed.color);
-    if (ed.splits) {
-      spawnEnemy("xarrZebra", e.idx, Math.max(0, e.prog - 0.04));
-      spawnEnemy("xarrZebra", e.idx, Math.min(0.99, e.prog + 0.04));
+    if (ed.splits && !e._splitSpawned) {
+      e._splitSpawned = true;
+      for (const childType of ["xarrSwarm", "xarrTank"]) {
+        const ce = ENEMIES[childType];
+        state.enemies.push({
+          typeKey: childType, hp: ce.hp, maxHp: ce.hp, speedMul: 1, stun: 0, slow: 0,
+          idx: e.idx, prog: e.prog, x: e.x, y: e.y, revealed: !ce.stealth
+        });
+      }
     }
   }
 }
@@ -560,6 +585,7 @@ function updateProjectiles(dt) {
     const d = Math.hypot(dx,dy);
     if (d < 8) {
       if (p.target && p.target.hp > 0) {
+        const ed = ENEMIES[p.target.typeKey];
         damageEnemy(p.target, p.dmg);
 
         // Hit effect
@@ -568,11 +594,21 @@ function updateProjectiles(dt) {
         if (p.target.hp > 0) {
           const fakeTower = { type: p.towerType };
           applyTowerEffects(fakeTower, p.target);
+        } else if (ed && ed.splits && !p.target._splitSpawned) {
+          p.target._splitSpawned = true;
+          for (const childType of ["xarrSwarm", "xarrTank"]) {
+            const ce = ENEMIES[childType];
+            state.enemies.push({
+              typeKey: childType, hp: ce.hp, maxHp: ce.hp, speedMul: 1, stun: 0, slow: 0,
+              idx: p.target.idx, prog: p.target.prog, x: p.target.x, y: p.target.y, revealed: !ce.stealth
+            });
+          }
         }
         if (p.splash > 0) {
           spawnExplosion(p.x, p.y, p.color);
           for (const e of state.enemies) {
             if (e===p.target || e.hp<=0) continue;
+            if (ENEMIES[e.typeKey].immune?.includes(p.towerType)) continue;
             if (dist(e,p.target) <= p.splash * GRID.tile) damageEnemy(e, p.dmg * 0.5);
           }
         }
@@ -592,7 +628,7 @@ function updateWaveSpawner(dt) {
   state.spawnTimer -= dt;
   if (state.spawnTimer <= 0 && state.waveQueue.length) {
     spawnEnemy(state.waveQueue.shift());
-    state.spawnTimer = 0.85;
+    state.spawnTimer = Math.max(0.28, 0.85 - state.wave * 0.005);
   }
   if (!state.waveQueue.length) state.waveSpawning = false;
 }
@@ -1114,40 +1150,95 @@ function drawEntities() {
 function drawOverlay() {
   if (!state.gameOver) return;
   if (!state._soundPlayed) { onGameOver(); state._soundPlayed = true; }
+  const cx = canvas.width / 2, cy = canvas.height / 2;
+
   // Darken background
-  const overGrad = ctx.createRadialGradient(canvas.width/2, canvas.height/2, 0, canvas.width/2, canvas.height/2, canvas.width/2);
-  overGrad.addColorStop(0, "rgba(0,0,0,0.4)");
-  overGrad.addColorStop(1, "rgba(0,0,0,0.75)");
+  const overGrad = ctx.createRadialGradient(cx, cy, 0, cx, cy, canvas.width / 2);
+  overGrad.addColorStop(0, "rgba(0,0,0,0.45)");
+  overGrad.addColorStop(1, "rgba(0,0,0,0.8)");
   ctx.fillStyle = overGrad;
-  ctx.fillRect(0,0,canvas.width,canvas.height);
+  ctx.fillRect(0, 0, canvas.width, canvas.height);
 
-  // Victory/Defeat banner
+  ctx.save();
+  // BTD6-style wood/cartoon panel box
+  const pw = 420, ph = 260, px = cx - pw / 2, py = cy - ph / 2;
+  ctx.shadowColor = "rgba(0,0,0,0.65)";
+  ctx.shadowBlur = 32;
+  ctx.shadowOffsetY = 10;
+  ctx.fillStyle = "#3a2210";
+  ctx.beginPath(); ctx.roundRect(px - 6, py - 6, pw + 12, ph + 12, 22); ctx.fill();
+  ctx.shadowBlur = 0; ctx.shadowOffsetY = 0;
+
+  // Golden frame rim
+  const rimGrad = ctx.createLinearGradient(px, py, px, py + ph);
+  rimGrad.addColorStop(0, "#ffe07d");
+  rimGrad.addColorStop(0.5, "#d89228");
+  rimGrad.addColorStop(1, "#9a6012");
+  ctx.fillStyle = rimGrad;
+  ctx.beginPath(); ctx.roundRect(px - 3, py - 3, pw + 6, ph + 6, 19); ctx.fill();
+
+  // Inner wood panel
+  const panelGrad = ctx.createLinearGradient(px, py, px, py + ph);
+  panelGrad.addColorStop(0, "#6e4427");
+  panelGrad.addColorStop(1, "#462916");
+  ctx.fillStyle = panelGrad;
+  ctx.beginPath(); ctx.roundRect(px, py, pw, ph, 16); ctx.fill();
+
+  // Inner inset highlight
+  ctx.strokeStyle = "rgba(255,230,160,0.22)";
+  ctx.lineWidth = 2;
+  ctx.beginPath(); ctx.roundRect(px + 6, py + 6, pw - 12, ph - 12, 12); ctx.stroke();
+
+  // Victory/Defeat title
   const bannerColor = state.victory ? "#66ff99" : "#ff5b6e";
-  const bannerShadow = state.victory ? "rgba(102,255,153,0.3)" : "rgba(255,91,110,0.3)";
-
+  const bannerShadow = state.victory ? "rgba(102,255,153,0.4)" : "rgba(255,91,110,0.4)";
   ctx.shadowColor = bannerShadow;
-  ctx.shadowBlur = 40;
-  ctx.fillStyle = bannerColor;
-  ctx.font = "bold 56px sans-serif";
+  ctx.shadowBlur = 24;
+  ctx.font = "bold 44px 'Fredoka', sans-serif";
   ctx.textAlign = "center";
   ctx.textBaseline = "middle";
-  ctx.fillText(state.victory ? "⭐ VICTORY ⭐" : "💀 DEFEAT", canvas.width/2, canvas.height/2 - 20);
+  ctx.lineWidth = 5;
+  ctx.strokeStyle = "#241308";
+  const titleText = state.victory ? "⭐ VICTORY ⭐" : "💀 DEFEAT";
+  ctx.strokeText(titleText, cx, py + 52);
+  ctx.fillStyle = bannerColor;
+  ctx.fillText(titleText, cx, py + 52);
   ctx.shadowBlur = 0;
 
-  // Subtitle
-  ctx.fillStyle = "#dbe7ff";
-  ctx.font = "18px sans-serif";
-  ctx.fillText("Neu laden für Neustart", canvas.width/2, canvas.height/2 + 36);
+  // Stats inset box
+  ctx.fillStyle = "rgba(20,10,4,0.45)";
+  ctx.beginPath(); ctx.roundRect(px + 32, py + 92, pw - 64, 74, 10); ctx.fill();
 
-  // Stats
-  ctx.font = "14px sans-serif";
-  ctx.fillStyle = "#8899bb";
-  ctx.fillText(`Welle ${state.wave}/${WAVES.length}  •  Score: ${state.score}`, canvas.width/2, canvas.height/2 + 64);
-  if (highScore > 0) {
-    ctx.font = "12px sans-serif";
-    ctx.fillStyle = state.score >= highScore ? "#ffd700" : "#8899bb";
-    ctx.fillText(`🏆 High Score: ${highScore}`, canvas.width/2, canvas.height/2 + 84);
-  }
+  ctx.font = "bold 18px 'Plus Jakarta Sans', sans-serif";
+  ctx.fillStyle = "#f5e6c8";
+  ctx.fillText(`🌊 Welle ${state.wave}/${WAVES.length}   •   🏆 Score: ${state.score}`, cx, py + 116);
+
+  const bestScore = Math.max(highScore, state.score);
+  ctx.font = "bold 15px 'Plus Jakarta Sans', sans-serif";
+  ctx.fillStyle = state.score >= highScore && bestScore > 0 ? "#ffd700" : "#cbb494";
+  ctx.fillText(`👑 High Score: ${bestScore}`, cx, py + 144);
+
+  // "🔄 Nochmal spielen" button
+  const bw = 250, bh = 50, bx = cx - bw / 2, by = py + ph - 72;
+  ctx.fillStyle = "#1c6b2b";
+  ctx.beginPath(); ctx.roundRect(bx, by + 4, bw, bh, 14); ctx.fill();
+
+  const btnGrad = ctx.createLinearGradient(bx, by, bx, by + bh);
+  btnGrad.addColorStop(0, "#65e665");
+  btnGrad.addColorStop(1, "#28a438");
+  ctx.fillStyle = btnGrad;
+  ctx.beginPath(); ctx.roundRect(bx, by, bw, bh, 14); ctx.fill();
+
+  ctx.strokeStyle = "#d8ffd8";
+  ctx.lineWidth = 2;
+  ctx.beginPath(); ctx.roundRect(bx + 1, by + 1, bw - 2, bh - 2, 13); ctx.stroke();
+
+  ctx.font = "bold 20px 'Fredoka', sans-serif";
+  ctx.fillStyle = "#ffffff";
+  ctx.shadowColor = "rgba(0,0,0,0.45)";
+  ctx.shadowBlur = 4;
+  ctx.fillText("🔄 Nochmal spielen", cx, by + bh / 2 + 1);
+  ctx.restore();
 }
 
 // ── Tower Selection / Upgrade ──
@@ -1216,7 +1307,11 @@ function showTowerUpgrade(idx) {
     hideUpgrade();
   };
 
-  const sellValue = Math.floor(def.cost * 0.5 + (t.lvl - 1) * def.upgCost * 0.4);
+  let totalSpent = def.cost;
+  for (let l = 1; l < t.lvl; l++) {
+    totalSpent += Math.floor(def.upgCost * Math.pow(def.upgMult, l - 1));
+  }
+  const sellValue = Math.floor(totalSpent * 0.6);
   sellBtn.textContent = `💰 Verkaufen (+${sellValue})`;
   sellBtn.onclick = () => {
     state.credits += sellValue;
@@ -1266,7 +1361,9 @@ function showShop() {
     item.querySelector("button").onclick = () => {
       if (maxed || state.credits < cost) return;
       state.credits -= cost;
+      state.stats.moneySpent += cost;
       globalUpgrades[key]++;
+      try { ls.setItem("galacticBloons_upgrades", JSON.stringify(globalUpgrades)); } catch(e) {}
       playUpgrade();
       // Re-apply upgrades
       const newState = applyGlobalUpgrades();
@@ -1416,3 +1513,9 @@ function frame(now) {
 
 let last = performance.now();
 requestAnimationFrame(frame);
+
+canvas.addEventListener("pointerdown", () => {
+  if (!state.gameOver) return;
+  resetState();
+  updateHud();
+});
