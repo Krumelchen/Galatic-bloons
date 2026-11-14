@@ -38,6 +38,7 @@ const abilBoost = document.getElementById("abilBoost");
 const statsOverlay = document.getElementById("statsOverlay");
 const statsContent = document.getElementById("statsContent");
 const closeStatsBtn = document.getElementById("closeStatsBtn");
+const statsBtn = document.getElementById("statsBtn");
 
 const GRID = { cols: 16, rows: 9, tile: 60, ox: 32, oy: 18 };
 
@@ -262,14 +263,16 @@ function applyGlobalUpgrades() {
   return { credits: 400 + extraCredits, core: 120 + extraCore, maxCore: 120 + extraCore };
 }
 function getTowerStats(towerDef, level) {
-  const dmgMult = 1 + globalUpgrades.towerDamage * 0.10;
-  const rangeMult = 1 + globalUpgrades.towerRange * 0.08;
-  const rateMult = 1 + globalUpgrades.fireRate * 0.08;
+  const dmgMult = 1 + globalUpgrades.towerDamage * (UPGRADES.towerDamage.perLvl / 100);
+  const rangeMult = 1 + globalUpgrades.towerRange * (UPGRADES.towerRange.perLvl / 100);
+  const rateMult = 1 + globalUpgrades.fireRate * (UPGRADES.fireRate.perLvl / 100);
   const lvlBonus = 1 + (level - 1) * 0.18;
   return {
-    damage: Math.round(towerDef.dmg * dmgMult * lvlBonus),
+    damage: towerDef.dmg ? Math.round(towerDef.dmg * dmgMult * lvlBonus) : 0,
     range: towerDef.range * rangeMult * (1 + (level - 1) * 0.1),
-    rate: towerDef.rate * rateMult * (1 + (level - 1) * 0.1)
+    rate: towerDef.rate * rateMult * (1 + (level - 1) * 0.1),
+    income: towerDef.income ? Math.round(towerDef.income * lvlBonus) : 0,
+    heal: towerDef.heal ? Math.round(towerDef.heal * lvlBonus) : 0
   };
 }
 
@@ -362,6 +365,24 @@ function draw3DTile(x, y, w, h, topColor, sideColor, height) {
   ctx.fillRect(x + 1, y + 1, 1, h - 2);
 }
 
+const ABILITY_COSTS = { slow: 20, credits: 50, boost: 30 };
+
+function updateAbilitiesUI() {
+  if (!abilitiesEl) return;
+  abilitiesEl.classList.remove("hidden");
+  const btns = [
+    { el: abilSlow, key: "slow", label: "🐌 Slow" },
+    { el: abilCredits, key: "credits", label: "💰 Bonus" },
+    { el: abilBoost, key: "boost", label: "⚡ Boost" }
+  ];
+  for (const { el, key, label } of btns) {
+    const cd = state.abilityCD[key] || 0;
+    const cost = ABILITY_COSTS[key];
+    el.textContent = cd > 0 ? `${label} (${Math.ceil(cd)}s)` : `${label} (${cost}💰)`;
+    el.disabled = cd > 0 || state.credits < cost;
+  }
+}
+
 function updateHud() {
   creditsEl.textContent = `💰 ${state.credits}`;
   scoreEl.textContent = `🏆 ${state.score}`;
@@ -369,6 +390,7 @@ function updateHud() {
   waveEl.textContent = `🌊 ${state.wave}/${WAVES.length}`;
   speedBtn.textContent = state.speed === 1 ? "⏩ 1×" : state.speed === 2 ? "⏩ 2×" : "⏩ 3×";
   speedBtn.className = state.speed > 1 ? "active" : "";
+  updateAbilitiesUI();
 }
 
 function buildWave(index) {
@@ -388,12 +410,13 @@ function startWave() {
   updateHud();
 }
 
-function spawnEnemy(typeKey) {
+function spawnEnemy(typeKey, idx = 0, prog = 0) {
   const e = ENEMIES[typeKey];
-  const start = toPx(PATH[0][0], PATH[0][1]);
+  const a = toPx(PATH[idx][0], PATH[idx][1]);
+  const b = PATH[idx + 1] ? toPx(PATH[idx + 1][0], PATH[idx + 1][1]) : a;
   state.enemies.push({
     typeKey, hp: e.hp, maxHp: e.hp, speedMul: 1, stun: 0, slow: 0,
-    idx: 0, prog: 0, x: start.x, y: start.y, revealed: !e.stealth
+    idx, prog, x: a.x + (b.x - a.x) * prog, y: a.y + (b.y - a.y) * prog, revealed: !e.stealth
   });
 }
 
@@ -448,27 +471,63 @@ function applyTowerEffects(t, target) {
   if (def.teleport) { target.idx = 0; target.prog = 0; const p = toPx(PATH[0][0], PATH[0][1]); target.x = p.x; target.y = p.y; }
 }
 
+function selectTarget(validTargets, pos, mode) {
+  if (mode === "last") {
+    return validTargets.reduce((a, b) => (a.idx + a.prog < b.idx + b.prog ? a : b));
+  }
+  if (mode === "strong") {
+    return validTargets.reduce((a, b) => (a.hp !== b.hp ? (a.hp > b.hp ? a : b) : (a.idx + a.prog > b.idx + b.prog ? a : b)));
+  }
+  if (mode === "near") {
+    return validTargets.reduce((a, b) => (dist(pos, a) < dist(pos, b) ? a : b));
+  }
+  return validTargets.reduce((a, b) => (a.idx + a.prog > b.idx + b.prog ? a : b));
+}
+
+function damageEnemy(e, rawDmg) {
+  if (!e || e.hp <= 0) return;
+  const ed = ENEMIES[e.typeKey];
+  const real = rawDmg * (1 - (ed.armor || 0));
+  e.hp -= real;
+  e.revealed = true;
+  if (e.hp <= 0 && !e._killed) {
+    e._killed = true;
+    state.credits += ed.reward;
+    state.stats.kills++;
+    state.stats.moneyEarned += ed.reward;
+    state.score += ed.reward;
+    if (ed.bloon) spawnBloonPop(e.x, e.y, ed.color);
+    else spawnExplosion(e.x, e.y, ed.color);
+    if (ed.splits) {
+      spawnEnemy("xarrZebra", e.idx, Math.max(0, e.prog - 0.04));
+      spawnEnemy("xarrZebra", e.idx, Math.min(0.99, e.prog + 0.04));
+    }
+  }
+}
+
 function updateTowers(dt) {
   for (const t of state.towers) {
     const def = TOWERS[t.type];
+    const stats = getTowerStats(def, t.lvl);
     t.cd -= dt;
     const pos = toPx(t.c,t.r);
 
     if (def.income && t.cd <= 0) {
-      state.credits += def.income;
+      state.credits += stats.income;
+      state.stats.moneyEarned += stats.income;
       updateHud();
-      t.cd = 1/def.rate;
+      t.cd = 1 / stats.rate;
       continue;
     }
     if (def.heal && t.cd <= 0) {
-      state.core = Math.min(state.maxCore, state.core + def.heal);
+      state.core = Math.min(state.maxCore, state.core + stats.heal);
       updateHud();
-      t.cd = 1/def.rate;
+      t.cd = 1 / stats.rate;
       continue;
     }
     if (t.cd > 0) continue;
 
-    const inRange = state.enemies.filter(e => e.hp>0 && dist(pos,e) <= def.range * GRID.tile);
+    const inRange = state.enemies.filter(e => e.hp>0 && dist(pos,e) <= stats.range * GRID.tile);
     if (!inRange.length) continue;
     // Filter out immune targets
     const validTargets = inRange.filter(e => {
@@ -478,17 +537,20 @@ function updateTowers(dt) {
     if (!validTargets.length) continue;
 
     if (t.type === "empPulse") {
-      for (const e of validTargets) { e.hp -= def.dmg; applyTowerEffects(t,e); if (e.hp<=0) state.credits += ENEMIES[e.typeKey].reward; }
+      for (const e of validTargets) {
+        damageEnemy(e, stats.damage);
+        if (e.hp > 0) applyTowerEffects(t, e);
+      }
       updateHud();
-      t.cd = 1/def.rate;
+      t.cd = 1 / stats.rate;
       continue;
     }
 
-    const target = validTargets.reduce((a,b)=> (a.idx > b.idx ? a : b));
+    const target = selectTarget(validTargets, pos, t.targetMode || "first");
     const dx = target.x - pos.x, dy = target.y - pos.y;
-    const d = Math.hypot(dx, dy);
-    state.projectiles.push({ x: pos.x, y: pos.y, tx: target.x, ty: target.y, vx: dx/d*420, vy: dy/d*420, dmg: def.dmg, splash: def.splash || 0, color: def.color, towerType: t.type, target });
-    t.cd = 1/def.rate;
+    const d = Math.hypot(dx, dy) || 1;
+    state.projectiles.push({ x: pos.x, y: pos.y, tx: target.x, ty: target.y, vx: dx/d*420, vy: dy/d*420, dmg: stats.damage, splash: def.splash || 0, color: def.color, towerType: t.type, target });
+    t.cd = 1 / stats.rate;
   }
 }
 
@@ -498,29 +560,21 @@ function updateProjectiles(dt) {
     const d = Math.hypot(dx,dy);
     if (d < 8) {
       if (p.target && p.target.hp > 0) {
-        const ed = ENEMIES[p.target.typeKey];
-        const armor = ed.armor || 0;
-        const real = p.dmg * (1 - armor);
-        p.target.hp -= real;
-        p.target.revealed = true;
+        damageEnemy(p.target, p.dmg);
 
         // Hit effect
         spawnParticles(p.x, p.y, p.color, 5, 2, 0.3);
 
-        const fakeTower = { type: p.towerType };
-        applyTowerEffects(fakeTower, p.target);
+        if (p.target.hp > 0) {
+          const fakeTower = { type: p.towerType };
+          applyTowerEffects(fakeTower, p.target);
+        }
         if (p.splash > 0) {
           spawnExplosion(p.x, p.y, p.color);
           for (const e of state.enemies) {
             if (e===p.target || e.hp<=0) continue;
-            if (dist(e,p.target) <= p.splash * GRID.tile) e.hp -= p.dmg * 0.5;
+            if (dist(e,p.target) <= p.splash * GRID.tile) damageEnemy(e, p.dmg * 0.5);
           }
-        }
-        if (p.target.hp <= 0) {
-          state.credits += ed.reward;
-          // Bloon pop effect!
-          if (ed.bloon) spawnBloonPop(p.target.x, p.target.y, ed.color);
-          else spawnExplosion(p.target.x, p.target.y, ed.color);
         }
       }
       p.done = true;
@@ -549,6 +603,7 @@ function checkWinLose() {
   if (!state.waveSpawning && state.enemies.length === 0 && state.wave > 0 && !state._waveBonusGiven) {
     const bonus = getWaveBonus(state.wave);
     state.score += bonus;
+    state.stats.wavesCompleted++;
     state._waveBonusGiven = true;
     showScorePopup(`+${bonus} 🏆 Welle ${state.wave}`, state.wave);
     updateHud();
@@ -579,7 +634,6 @@ function showScorePopup(text) {
 // ── BTD5-style Map Drawing ─────────────────────────────────────
 window._gameErrors = [];
 window.onerror = (msg, url, line) => { window._gameErrors.push(`${msg} (${line})`); };
-console.log = function(...args) { window._gameErrors.push(args.join(' ')); };
 
 function drawGrid() {
   const map = MAPS[currentMap];
@@ -850,7 +904,7 @@ function drawTower3D(x, y, towerDef, level) {
     ctx.beginPath(); ctx.arc(x+4,y+8,1.5,0,Math.PI*2); ctx.fill();
     ctx.fillStyle = "#ffb0b0"; ctx.beginPath(); ctx.arc(x,y+12,2,0,Math.PI*2); ctx.fill();
     // Sparks
-    ctx.fillStyle = color; for(let i=0;i<4;i++){const a=i*1.57+t/300;ctx.beginPath();ctx.arc(x+Math.cos(a)*14,y+4+Math.sin(a)*8,2.5,0,Math.PI*2);ctx.fill();}
+    ctx.fillStyle = color; for(let i=0;i<4;i++){const a=i*1.57+Date.now()/300;ctx.beginPath();ctx.arc(x+Math.cos(a)*14,y+4+Math.sin(a)*8,2.5,0,Math.PI*2);ctx.fill();}
     ctx.font = "14px sans-serif"; ctx.fillText(icon, x, y-12);
   } else if (name === "Fuchs-Bogen") {
     ctx.fillStyle = body;
@@ -1125,12 +1179,30 @@ function showTowerUpgrade(idx) {
   const maxed = t.lvl >= def.maxLvl;
 
   upgradeTitle.textContent = `${def.icon} ${def.name} ★${t.lvl}`;
-  upgradeStats.textContent = maxed
-    ? `Schaden: ${stats.damage} • Reichweite: ${stats.range.toFixed(1)} • ⚡ MAX`
-    : `Schaden: ${stats.damage} → ${nextStats.damage}`;
-  upgradeStats2.textContent = maxed
-    ? `Feuerrate: ${stats.rate.toFixed(2)}/s`
-    : `Reichweite: ${stats.range.toFixed(1)} → ${nextStats.range.toFixed(1)}`;
+  if (def.income) {
+    upgradeStats.textContent = maxed
+      ? `Einkommen: ${stats.income}💰 • ⚡ MAX`
+      : `Einkommen: ${stats.income} → ${nextStats.income}💰`;
+    upgradeStats2.textContent = maxed
+      ? `Rate: ${stats.rate.toFixed(2)}/s`
+      : `Rate: ${stats.rate.toFixed(2)} → ${nextStats.rate.toFixed(2)}/s`;
+  } else if (def.heal) {
+    upgradeStats.textContent = maxed
+      ? `Heilung: ${stats.heal}❤️ • ⚡ MAX`
+      : `Heilung: ${stats.heal} → ${nextStats.heal}❤️`;
+    upgradeStats2.textContent = maxed
+      ? `Rate: ${stats.rate.toFixed(2)}/s`
+      : `Rate: ${stats.rate.toFixed(2)} → ${nextStats.rate.toFixed(2)}/s`;
+  } else {
+    upgradeStats.textContent = maxed
+      ? `Schaden: ${stats.damage} • Reichweite: ${stats.range.toFixed(1)} • ⚡ MAX`
+      : `Schaden: ${stats.damage} → ${nextStats.damage}`;
+    upgradeStats2.textContent = maxed
+      ? `Feuerrate: ${stats.rate.toFixed(2)}/s`
+      : `Reichweite: ${stats.range.toFixed(1)} → ${nextStats.range.toFixed(1)}`;
+  }
+
+  targetSelect.value = t.targetMode || "first";
 
   const upgCost = Math.floor(def.upgCost * Math.pow(def.upgMult, t.lvl - 1));
   upgradeBtn.textContent = maxed ? "⭐ MAX LEVEL" : `⬆ Upgraden (${upgCost}💰)`;
@@ -1162,6 +1234,10 @@ function hideUpgrade() {
   state.selectedTowerIdx = -1;
 }
 closePopupBtn.addEventListener("click", hideUpgrade);
+targetSelect.addEventListener("change", () => {
+  const t = state.towers[state.selectedTowerIdx];
+  if (t) t.targetMode = targetSelect.value;
+});
 clearSelectionBtn.addEventListener("click", () => {
   state.selectedTowerType = null;
   [...towerButtonsEl.children].forEach(b => b.classList.remove("selected"));
@@ -1195,6 +1271,7 @@ function showShop() {
       // Re-apply upgrades
       const newState = applyGlobalUpgrades();
       state.maxCore = newState.maxCore;
+      if (key === "coreBoost") state.core += UPGRADES.coreBoost.perLvl;
       if (state.core > state.maxCore) state.core = state.maxCore;
       updateHud();
       showShop(); // Refresh shop
@@ -1228,9 +1305,23 @@ soundBtn.addEventListener("click", () => {
 });
 mapBtn.addEventListener("click", showMapSelect);
 closeMapBtn.addEventListener("click", () => mapPopup.classList.add("hidden"));
+statsBtn.addEventListener("click", showStats);
+closeStatsBtn.addEventListener("click", () => statsOverlay.classList.add("hidden"));
 abilSlow.addEventListener("click", () => useAbility("slow"));
 abilCredits.addEventListener("click", () => useAbility("credits"));
 abilBoost.addEventListener("click", () => useAbility("boost"));
+
+function showStats() {
+  statsContent.innerHTML = `
+    <p>👾 Besiegte Bloons: <b>${state.stats.kills}</b></p>
+    <p>🌊 Wellen abgeschlossen: <b>${state.stats.wavesCompleted}</b></p>
+    <p>🗼 Türme gebaut: <b>${state.stats.towersPlaced}</b></p>
+    <p>💰 Credits verdient: <b>${state.stats.moneyEarned}</b></p>
+    <p>💸 Credits ausgegeben: <b>${state.stats.moneySpent}</b></p>
+    <p>🏆 High Score: <b>${Math.max(highScore, state.score)}</b></p>
+  `;
+  statsOverlay.classList.remove("hidden");
+}
 
 // ── Map Switching ──
 function showMapSelect() {
@@ -1287,6 +1378,15 @@ function frame(now) {
   last = now;
 
   if (!state.gameOver && !state.paused) {
+    // Ability cooldowns
+    let cdChanged = false;
+    for (const k of Object.keys(state.abilityCD)) {
+      if (state.abilityCD[k] > 0) {
+        state.abilityCD[k] = Math.max(0, state.abilityCD[k] - dt);
+        cdChanged = true;
+      }
+    }
+    if (cdChanged) updateAbilitiesUI();
     // Auto-wave timer
     if (state._autoWaveTimer > 0) {
       state._autoWaveTimer -= dt;
