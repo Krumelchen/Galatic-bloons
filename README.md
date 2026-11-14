@@ -4,13 +4,14 @@
 
 ## 🎮 Features
 
-- 30 Wellen mit 18 Gegnertypen (Red → B.A.D.)
-- 8 Tier-Charakter-Türme (🐵🐶🐱🐰🦊🐼🦄🐝)
-- Auto-Wave, Speed-Controls (1×/2×/3×)
-- Shop mit globalen Upgrades
-- 4 verschiedene Maps
-- Pause, Sound-Toggle
-- Score-System mit Highscore
+- 100 Wellen mit 18 Gegnertypen (Red → B.A.D.)
+- 8 Tier-Charakter-Türme (🐵🐶🐱🐰🦊🐼🦄🐝) mit 4 Upgrade-Stufen & Ziel-Modi (Erster/Letzter/Stärkster/Nächster)
+- Aktive Abilities (Slow, Bonus-Credits, Cooldown-Boost)
+- Auto-Wave, Speed-Controls (1×/2×/3×), Pause & Sound-Toggle
+- Shop mit persistenten globalen Upgrades (`localStorage`)
+- 4 verschiedene Maps (Wiesen, Wüste, Eis, All)
+- Statistik-Overlay & Score-System mit Highscore
+- BTD6-inspiriertes Desktop- & Mobile-Layout (Hoch- und Querformat)
 
 ## 🚀 Deployment (Render.com)
 
