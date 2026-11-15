@@ -47,53 +47,53 @@ let PATH, BUILD_SPOTS;
 
 // ── BTD5/6-inspired Tower Data ─────────────────────────────────
 const TOWERS = {
-  laserCannon:      { name: "Laser-Affe",  cost: 120, range: 2.5, rate: 0.8, dmg: 12, color:"#45d4ff", body:"#1a7ad5", icon:"🐵", desc:"Schießt Nüsse!", upgCost:100, upgMult:1.35, maxLvl:4 },
-  plasmaAoE:        { name: "Plasma-Hund", cost: 200, range: 2.2, rate: 0.5, dmg: 16, splash:1.1, color:"#c07aff", body:"#7a2bc4", icon:"🐶", desc:"Bellt Feuerbälle!", upgCost:160, upgMult:1.35, maxLvl:4 },
-  ionSlow:          { name: "Eis-Katze",   cost: 160, range: 2.5, rate: 0.85, dmg: 4, slow:{factor:0.5,dur:2.0}, color:"#6af0ff", body:"#2098b0", icon:"🐱", desc:"Eis-Atem❄️", upgCost:130, upgMult:1.35, maxLvl:4 },
-  empPulse:         { name: "EMP-Hase",    cost: 220, range: 2.5, rate: 0.35, dmg: 2, stun:1.2, color:"#ffe37a", body:"#b8962a", icon:"🐰", desc:"Springt & betäubt!", upgCost:180, upgMult:1.35, maxLvl:4 },
-  missileSilo:      { name: "Fuchs-Bogen", cost: 350, range: 3.5, rate: 0.5, dmg: 35, color:"#ff8d66", body:"#c04520", icon:"🦊", desc:"Scharfe Pfeile!", upgCost:280, upgMult:1.35, maxLvl:4 },
-  nanobotRepair:    { name: "Panda-Doc",   cost: 200, range: 0, rate: 0.25, heal: 2, color:"#76f0a0", body:"#2a9a4e", icon:"🐼", desc:"Heilt mit Bambus!", upgCost:160, upgMult:1.35, maxLvl:4 },
-  quantumDisruptor: { name: "Einhorn-Mag", cost: 650, range: 5.5, rate: 0.65, dmg: 65, teleport:true, color:"#db7dff", body:"#9a2abf", icon:"🦄", desc:"Magischer Teleport!", upgCost:480, upgMult:1.35, maxLvl:4 },
-  solarCollector:   { name: "Bienen-Korb", cost: 250, range: 0, rate: 0.15, income: 14, color:"#ffd54a", body:"#c89020", icon:"🐝", desc:"Sammelt Credits!", upgCost:200, upgMult:1.35, maxLvl:4 }
+  laserCannon:      { name: "Laser-Affe",  cost: 100, range: 2.5, rate: 1.0, dmg: 14, color:"#45d4ff", body:"#1a7ad5", icon:"🐵", desc:"Schießt Nüsse!", upgCost:100, upgMult:1.35, maxLvl:6 },
+  plasmaAoE:        { name: "Plasma-Hund", cost: 180, range: 2.2, rate: 0.65, dmg: 20, splash:1.3, color:"#c07aff", body:"#7a2bc4", icon:"🐶", desc:"Bellt Feuerbälle!", upgCost:160, upgMult:1.35, maxLvl:6 },
+  ionSlow:          { name: "Eis-Katze",   cost: 160, range: 2.5, rate: 0.85, dmg: 4, slow:{factor:0.5,dur:2.0}, color:"#6af0ff", body:"#2098b0", icon:"🐱", desc:"Eis-Atem❄️", upgCost:130, upgMult:1.35, maxLvl:6 },
+  empPulse:         { name: "EMP-Hase",    cost: 220, range: 2.5, rate: 0.45, dmg: 6, stun:1.2, color:"#ffe37a", body:"#b8962a", icon:"🐰", desc:"Springt & betäubt!", upgCost:180, upgMult:1.35, maxLvl:6 },
+  missileSilo:      { name: "Fuchs-Bogen", cost: 300, range: 3.5, rate: 0.75, dmg: 60, color:"#ff8d66", body:"#c04520", icon:"🦊", desc:"Scharfe Pfeile!", upgCost:280, upgMult:1.35, maxLvl:6 },
+  nanobotRepair:    { name: "Panda-Doc",   cost: 200, range: 0, rate: 0.25, heal: 2, color:"#76f0a0", body:"#2a9a4e", icon:"🐼", desc:"Heilt mit Bambus!", upgCost:160, upgMult:1.35, maxLvl:6 },
+  quantumDisruptor: { name: "Einhorn-Mag", cost: 650, range: 5.5, rate: 0.85, dmg: 90, teleport:true, color:"#db7dff", body:"#9a2abf", icon:"🦄", desc:"Magischer Teleport!", upgCost:480, upgMult:1.35, maxLvl:6 },
+  solarCollector:   { name: "Bienen-Korb", cost: 250, range: 0, rate: 0.15, income: 14, color:"#ffd54a", body:"#c89020", icon:"🐝", desc:"Sammelt Credits!", upgCost:200, upgMult:1.35, maxLvl:6 }
 };
 
 // ── BTD5/6-inspired Bloon Enemies ──────────────────────────────
 const ENEMIES = {
   xarrScout:   { name:"Red Bloon",    hp: 70,  speed: 1.3,  reward: 8, coreDmg: 5,  color:"#e85050", bloon:true },
   xarrSwarm:   { name:"Blue Bloon",   hp: 45,  speed: 1.65, reward: 6, coreDmg: 3,  color:"#5090e8", bloon:true },
-  xarrTank:    { name:"Green Bloon",  hp: 280, speed: 0.68, reward: 22, coreDmg: 20, color:"#50b060", armor:0.12, bloon:true },
+  xarrTank:    { name:"Green Bloon",  hp: 180, speed: 0.68, reward: 22, coreDmg: 20, color:"#50b060", armor:0.12, bloon:true },
   xarrStealth: { name:"Pink Bloon",   hp: 110, speed: 1.15, reward: 15, coreDmg: 8,  color:"#e870b0", stealth:true, bloon:true },
-  xarrArmored: { name:"Ceramic",      hp: 260, speed: 0.88, reward: 20, coreDmg: 16, color:"#c0a060", armor:0.35, bloon:true },
-  xarrLead:    { name:"Lead Bloon",   hp: 380, speed: 0.62, reward: 28, coreDmg: 20, color:"#808890", armor:0.5, immune:["laserCannon"], bloon:true },
+  xarrArmored: { name:"Ceramic",      hp: 180, speed: 0.88, reward: 20, coreDmg: 16, color:"#c0a060", armor:0.35, bloon:true },
+  xarrLead:    { name:"Lead Bloon",   hp: 240, speed: 0.62, reward: 28, coreDmg: 20, color:"#808890", armor:0.3, immune:["laserCannon"], bloon:true },
   xarrRainbow: { name:"Rainbow",      hp: 90,  speed: 1.25, reward: 12, coreDmg: 7,  color:"#ff6080", splits:true, bloon:true },
   xarrZebra:   { name:"Zebra Bloon",  hp: 70,  speed: 1.75, reward: 9, coreDmg: 5,  color:"#2a2a2a", bloon:true },
-  xarrDDT:     { name:"D.D.T.",       hp: 550, speed: 2.0,  reward: 45, coreDmg: 30, color:"#1a1a2a", stealth:true, armor:0.32, boss:true },
+  xarrDDT:     { name:"D.D.T.",       hp: 420, speed: 1.75, reward: 45, coreDmg: 30, color:"#1a1a2a", stealth:true, armor:0.32, boss:true },
   xarrBlack:   { name:"Black Bloon",  hp: 120, speed: 1.5,  reward: 14, coreDmg: 6,  color:"#1a1a1a", immune:["plasmaAoE","empPulse","missileSilo"], bloon:true },
   xarrWhite:   { name:"White Bloon",  hp: 100, speed: 1.4,  reward: 13, coreDmg: 6,  color:"#f0f0f0", immune:["ionSlow"], bloon:true },
   xarrPurple:  { name:"Purple Bloon", hp: 130, speed: 1.35, reward: 16, coreDmg: 7,  color:"#b070d0", immune:["quantumDisruptor"], bloon:true },
   xarrGold:    { name:"Gold Bloon",   hp: 60,  speed: 2.0,  reward: 40, coreDmg: 3,  color:"#ffd700", bloon:true },
   xarrGhost:   { name:"Ghost Bloon",  hp: 80,  speed: 1.1,  reward: 18, coreDmg: 10, color:"#a0d0ff", stealth:true, bloon:true },
-  xarrBoss:    { name:"M.O.A.B.",     hp: 2000,speed: 0.55, reward: 180, coreDmg: 80, color:"#ff4ec5", armor:0.25, boss:true },
-  xarrBFB:     { name:"B.F.B.",       hp: 3500,speed: 0.42, reward: 350, coreDmg: 140,color:"#ff3030", armor:0.30, boss:true },
-  xarrZOMG:    { name:"Z.O.M.G.",     hp: 7000,speed: 0.32, reward: 700, coreDmg: 250,color:"#30ff30", armor:0.38, immune:["ionSlow"], boss:true },
-  xarrBAD:     { name:"B.A.D.",       hp:10000,speed: 0.22, reward: 2500, coreDmg: 400,color:"#ff00ff", armor:0.35, immune:["ionSlow","empPulse","quantumDisruptor"], boss:true }
+  xarrBoss:    { name:"M.O.A.B.",     hp: 1100,speed: 0.55, reward: 250, coreDmg: 80, color:"#ff4ec5", armor:0.15, boss:true },
+  xarrBFB:     { name:"B.F.B.",       hp: 2400,speed: 0.42, reward: 350, coreDmg: 140,color:"#ff3030", armor:0.20, boss:true },
+  xarrZOMG:    { name:"Z.O.M.G.",     hp: 4800,speed: 0.32, reward: 700, coreDmg: 250,color:"#30ff30", armor:0.25, immune:["ionSlow"], boss:true },
+  xarrBAD:     { name:"B.A.D.",       hp: 7500,speed: 0.22, reward: 2500, coreDmg: 400,color:"#ff00ff", armor:0.28, immune:["ionSlow","empPulse","quantumDisruptor"], boss:true }
 };
 
 const WAVES = (function(){
   var w=[],S="xarrScout",B="xarrSwarm",T="xarrTank",P="xarrStealth",C="xarrArmored",L="xarrLead",R="xarrRainbow",Z="xarrZebra",D="xarrDDT",K="xarrBlack",H="xarrWhite",U="xarrPurple",G="xarrGold",O="xarrGhost",M="xarrBoss",F="xarrBFB",XM="xarrZOMG",BA="xarrBAD";
   var n=function(t,c){return{type:t,count:c}};
   for(var i=0;i<100;i++){
-    var s=i+1,h=function(v){return Math.max(1,Math.round(v*(1+i*0.08)))};if(s===100)w.push([n(BA,1),n(F,3),n(XM,2),n(D,8),n(C,20),n(L,15)]);
+    var s=i+1,h=function(v){return Math.max(1,Math.round(v*(1+i*0.05)))};if(s===100)w.push([n(BA,2),n(XM,3),n(F,4),n(D,10),n(C,20),n(L,15)]);
     else if(s===90)w.push([n(XM,3),n(F,4),n(D,6),n(BA,1),n(K,12),n(H,12)]);
-    else if(s===80)w.push([n(XM,2),n(F,3),n(D,8),n(C,15),n(U,12)]);
+    else if(s===80)w.push([n(XM,3),n(F,4),n(D,8),n(C,15),n(U,12)]);
     else if(s===70)w.push([n(F,4),n(D,6),n(K,12),n(H,12),n(U,12)]);
     else if(s===60)w.push([n(M,4),n(F,2),n(D,5),n(C,12),n(L,10)]);
-    else if(s===50)w.push([n(XM,1),n(F,2),n(M,3),n(D,4)]);
+    else if(s===50)w.push([n(XM,2),n(F,3),n(M,3),n(D,4)]);
     else if(s===40)w.push([n(F,2),n(D,3),n(K,8),n(H,8),n(C,10)]);
     else if(s===30)w.push([n(F,1),n(M,2),n(D,2),n(L,6)]);
-    else if(s===20)w.push([n(M,2),n(D,1),n(C,8),n(L,5)]);
-    else if(s===10)w.push([n(M,1),n(L,3),n(C,5)]);
-    else if(s%10===9)w.push([n(BA,s>89?1:0),n(XM,s>79?1:0),n(F,s>49?2:1),n(D,h(3+s/10)),n(C,h(5+s/5))]);
+    else if(s===20)w.push([n(M,2),n(D,1),n(C,6),n(L,4)]);
+    else if(s===10)w.push([n(M,1),n(L,2),n(C,3)]);
+    else if(s>20&&s%10===9)w.push([n(BA,s>89?1:0),n(XM,s>79?1:0),n(F,s>49?2:1),n(D,Math.min(12,Math.max(1,Math.floor((s-20)/7)))),n(C,h(5+s/5))]);
     else if(s%5===0)w.push([n(G,h(8)),n(R,h(6)),n(Z,h(4+s/5)),n(O,s>25?h(4):0)]);
     else if(s<5)w.push([n(S,h(6+i*2)),n(B,i>1?h(3+i):0)]);
     else if(s<10)w.push([n(S,h(5+i)),n(B,h(3+i)),n(T,i>6?h(1):0)]);
@@ -101,13 +101,13 @@ const WAVES = (function(){
     else if(s<20)w.push([n(T,h(2+i/4)),n(C,h(2+i/5)),n(P,h(3)),n(L,h(1+i/8))]);
     else if(s<25)w.push([n(T,h(3+i/4)),n(C,h(3+i/4)),n(L,h(2)),n(K,h(2)),n(H,h(2))]);
     else if(s<35)w.push([n(C,h(4+i/5)),n(L,h(3+i/6)),n(K,h(3)),n(H,h(3)),n(U,h(3)),n(D,s>29?h(1):0)]);
-    else if(s<45)w.push([n(C,h(5+i/4)),n(L,h(4+i/5)),n(K,h(4)),n(H,h(4)),n(U,h(4)),n(D,h(1+i/10)),n(Z,h(5))]);
-    else if(s<55)w.push([n(C,h(6+i/3)),n(L,h(5+i/4)),n(K,h(5)),n(H,h(5)),n(U,h(5)),n(D,h(2+i/8)),n(Z,h(6)),n(O,h(4))]);
-    else if(s<65)w.push([n(C,h(8+i/3)),n(L,h(6+i/3)),n(K,h(6)),n(H,h(6)),n(U,h(6)),n(D,h(3+i/6)),n(Z,h(8)),n(O,h(5)),n(G,h(3))]);
-    else if(s<75)w.push([n(C,h(10+i/3)),n(L,h(8+i/3)),n(K,h(8)),n(H,h(8)),n(U,h(8)),n(D,h(4+i/5)),n(Z,h(10)),n(O,h(6)),n(G,h(4))]);
-    else if(s<85)w.push([n(C,h(12+i/3)),n(L,h(10+i/3)),n(K,h(10)),n(H,h(10)),n(U,h(10)),n(D,h(5+i/4)),n(Z,h(12)),n(O,h(8)),n(G,h(5))]);
-    else if(s<95)w.push([n(C,h(14+i/4)),n(L,h(12+i/4)),n(K,h(12)),n(H,h(12)),n(U,h(12)),n(D,h(6+i/3)),n(Z,h(14)),n(O,h(10)),n(G,h(6))]);
-    else w.push([n(C,h(16+i/5)),n(L,h(14+i/5)),n(K,h(14)),n(H,h(14)),n(U,h(14)),n(D,h(7+i/3)),n(Z,h(16)),n(O,h(12)),n(G,h(8))]);
+    else if(s<45)w.push([n(C,h(5+i/4)),n(L,h(4+i/5)),n(K,h(4)),n(H,h(4)),n(U,h(4)),n(D,Math.min(12,Math.max(1,Math.floor((s-20)/7)))),n(Z,h(5))]);
+    else if(s<55)w.push([n(C,h(6+i/3)),n(L,h(5+i/4)),n(K,h(5)),n(H,h(5)),n(U,h(5)),n(D,Math.min(12,Math.max(1,Math.floor((s-20)/7)))),n(Z,h(6)),n(O,h(4))]);
+    else if(s<65)w.push([n(C,h(8+i/3)),n(L,h(6+i/3)),n(K,h(6)),n(H,h(6)),n(U,h(6)),n(D,Math.min(12,Math.max(1,Math.floor((s-20)/7)))),n(Z,h(8)),n(O,h(5)),n(G,h(3))]);
+    else if(s<75)w.push([n(C,h(10+i/3)),n(L,h(8+i/3)),n(K,h(8)),n(H,h(8)),n(U,h(8)),n(D,Math.min(12,Math.max(1,Math.floor((s-20)/7)))),n(Z,h(10)),n(O,h(6)),n(G,h(4))]);
+    else if(s<85)w.push([n(C,h(12+i/3)),n(L,h(10+i/3)),n(K,h(10)),n(H,h(10)),n(U,h(10)),n(D,Math.min(12,Math.max(1,Math.floor((s-20)/7)))),n(Z,h(12)),n(O,h(8)),n(G,h(5))]);
+    else if(s<95)w.push([n(C,h(14+i/4)),n(L,h(12+i/4)),n(K,h(12)),n(H,h(12)),n(U,h(12)),n(D,Math.min(12,Math.max(1,Math.floor((s-20)/7)))),n(Z,h(14)),n(O,h(10)),n(G,h(6))]);
+    else w.push([n(C,h(16+i/5)),n(L,h(14+i/5)),n(K,h(14)),n(H,h(14)),n(U,h(14)),n(D,Math.min(12,Math.max(1,Math.floor((s-20)/7)))),n(Z,h(16)),n(O,h(12)),n(G,h(8))]);
     w[s-1]=w[s-1].filter(function(r){return r.count>0});
   }
   return w;
@@ -123,12 +123,12 @@ const MAPS = {
   desert: {
     name:"🏜️ Wüste", path:[[0,2],[1,2],[2,2],[3,2],[3,3],[3,4],[4,4],[5,4],[6,4],[6,3],[6,2],[7,2],[8,2],[9,2],[9,3],[9,4],[10,4],[11,4],[11,3],[11,2],[12,2],[13,2],[14,2],[15,2]],
     spots:["1,3","2,3","4,3","5,3","5,2","5,5","6,5","7,3","7,4","7,5","8,3","8,4","8,5","9,5","10,3","10,5","11,5","12,3","13,3","14,3","2,1"],
-    theme:{bg1:"#c4a050",bg2:"#8a7030",path1:"#d4b87a",path2:"#b89858",deco1:"#5a7a2a",deco2:"#7a9a3a",name:"Wüste"}
+    theme:{bg1:"#b88435",bg2:"#7d551d",path1:"#f5e1ad",path2:"#d8b46a",deco1:"#5a7a2a",deco2:"#7a9a3a",name:"Wüste"}
   },
   frozen: {
     name:"❄️ Eis", path:[[0,5],[1,5],[2,5],[2,4],[3,4],[4,4],[4,3],[5,3],[6,3],[7,3],[7,4],[8,4],[9,4],[9,3],[10,3],[11,3],[11,4],[12,4],[12,5],[13,5],[14,5],[15,5]],
     spots:["2,3","2,6","3,3","3,5","4,5","4,2","5,2","5,4","6,2","6,4","7,2","7,5","8,3","8,5","9,2","9,5","10,2","10,4","11,2","11,5","13,4"],
-    theme:{bg1:"#8ab4d4",bg2:"#5a84a4",path1:"#c8dce8",path2:"#a0bcc8",deco1:"#d0e8f0",deco2:"#b0d0e0",name:"Eis"}
+    theme:{bg1:"#366894",bg2:"#1b3a57",path1:"#eaf6ff",path2:"#bddbf0",deco1:"#d0e8f0",deco2:"#b0d0e0",name:"Eis"}
   },
   space: {
     name:"🚀 All", path:[[0,3],[1,3],[2,3],[3,3],[4,3],[5,3],[5,4],[6,4],[7,4],[8,4],[8,3],[9,3],[10,3],[11,3],[11,4],[12,4],[13,4],[14,4],[14,3],[15,3]],
@@ -268,7 +268,7 @@ function getUpgradeCost(key) {
 function applyGlobalUpgrades() {
   const extraCredits = globalUpgrades.startingCredits * UPGRADES.startingCredits.perLvl;
   const extraCore = globalUpgrades.coreBoost * UPGRADES.coreBoost.perLvl;
-  return { credits: 400 + extraCredits, core: 120 + extraCore, maxCore: 120 + extraCore };
+  return { credits: 550 + extraCredits, core: 150 + extraCore, maxCore: 150 + extraCore };
 }
 function getTowerStats(towerDef, level) {
   const dmgMult = 1 + globalUpgrades.towerDamage * (UPGRADES.towerDamage.perLvl / 100);
@@ -519,7 +519,7 @@ function damageEnemy(e, rawDmg) {
     else spawnExplosion(e.x, e.y, ed.color);
     if (ed.splits && !e._splitSpawned) {
       e._splitSpawned = true;
-      for (const childType of ["xarrSwarm", "xarrTank"]) {
+      for (const childType of ["xarrScout", "xarrSwarm"]) {
         const ce = ENEMIES[childType];
         state.enemies.push({
           typeKey: childType, hp: ce.hp, maxHp: ce.hp, speedMul: 1, stun: 0, slow: 0,
@@ -581,42 +581,39 @@ function updateTowers(dt) {
 
 function updateProjectiles(dt) {
   for (const p of state.projectiles) {
+    if (p.target && p.target.hp > 0) {
+      p.tx = p.target.x;
+      p.ty = p.target.y;
+    }
     const dx = p.tx - p.x, dy = p.ty - p.y;
-    const d = Math.hypot(dx,dy);
-    if (d < 8) {
+    const d = Math.hypot(dx, dy);
+    const step = 420 * dt;
+    if (d < Math.max(8, step)) {
       if (p.target && p.target.hp > 0) {
-        const ed = ENEMIES[p.target.typeKey];
         damageEnemy(p.target, p.dmg);
 
         // Hit effect
         spawnParticles(p.x, p.y, p.color, 5, 2, 0.3);
 
         if (p.target.hp > 0) {
-          const fakeTower = { type: p.towerType };
-          applyTowerEffects(fakeTower, p.target);
-        } else if (ed && ed.splits && !p.target._splitSpawned) {
-          p.target._splitSpawned = true;
-          for (const childType of ["xarrSwarm", "xarrTank"]) {
-            const ce = ENEMIES[childType];
-            state.enemies.push({
-              typeKey: childType, hp: ce.hp, maxHp: ce.hp, speedMul: 1, stun: 0, slow: 0,
-              idx: p.target.idx, prog: p.target.prog, x: p.target.x, y: p.target.y, revealed: !ce.stealth
-            });
-          }
+          applyTowerEffects({ type: p.towerType }, p.target);
         }
-        if (p.splash > 0) {
-          spawnExplosion(p.x, p.y, p.color);
-          for (const e of state.enemies) {
-            if (e===p.target || e.hp<=0) continue;
-            if (ENEMIES[e.typeKey].immune?.includes(p.towerType)) continue;
-            if (dist(e,p.target) <= p.splash * GRID.tile) damageEnemy(e, p.dmg * 0.5);
-          }
+      }
+      if (p.splash > 0) {
+        const hitPos = { x: p.tx, y: p.ty };
+        spawnExplosion(p.tx, p.ty, p.color);
+        for (const e of state.enemies) {
+          if (e === p.target || e.hp <= 0) continue;
+          if (ENEMIES[e.typeKey].immune?.includes(p.towerType)) continue;
+          if (dist(e, hitPos) <= p.splash * GRID.tile) damageEnemy(e, p.dmg * 0.5);
         }
       }
       p.done = true;
       updateHud();
       continue;
     }
+    p.vx = (dx / d) * 420;
+    p.vy = (dy / d) * 420;
     p.x += p.vx * dt;
     p.y += p.vy * dt;
   }
@@ -638,10 +635,13 @@ function checkWinLose() {
   // Wave completion bonus
   if (!state.waveSpawning && state.enemies.length === 0 && state.wave > 0 && !state._waveBonusGiven) {
     const bonus = getWaveBonus(state.wave);
+    const waveCash = 40 + state.wave * 8;
+    state.credits += waveCash;
+    state.stats.moneyEarned += waveCash;
     state.score += bonus;
     state.stats.wavesCompleted++;
     state._waveBonusGiven = true;
-    showScorePopup(`+${bonus} 🏆 Welle ${state.wave}`, state.wave);
+    showScorePopup(`+${waveCash}💰 • +${bonus}🏆 Welle ${state.wave}`);
     updateHud();
     ls.setItem("galacticBloons_highScore", Math.max(highScore, state.score));
     // Auto next wave (timer-based, synced with game loop)
@@ -1251,8 +1251,19 @@ canvas.addEventListener("pointerdown", ev => {
   const r = Math.floor((y - GRID.oy) / GRID.tile);
   if (c<0 || r<0 || c>=GRID.cols || r>=GRID.rows) return;
 
-  // Check if clicking on existing tower
-  const towerIdx = state.towers.findIndex(t => t.c === c && t.r === r);
+  // Check if clicking on existing tower (with touch tolerance when not placing)
+  let towerIdx = state.towers.findIndex(t => t.c === c && t.r === r);
+  if (towerIdx < 0 && !state.selectedTowerType) {
+    let bestDist = 0.75 * GRID.tile;
+    state.towers.forEach((t, i) => {
+      const p = toPx(t.c, t.r);
+      const d = Math.hypot(x - p.x, y - p.y);
+      if (d <= bestDist) {
+        bestDist = d;
+        towerIdx = i;
+      }
+    });
+  }
   if (towerIdx >= 0) {
     state.selectedTowerIdx = towerIdx;
     showTowerUpgrade(towerIdx);
