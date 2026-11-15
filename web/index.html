@@ -7,49 +7,56 @@
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@500;600;700&family=Plus+Jakarta+Sans:wght@500;600;700;800&display=swap" rel="stylesheet" />
-  <link rel="stylesheet" href="./style.css?v=20261115i" />
+  <link rel="stylesheet" href="./style.css?v=20261115l" />
 </head>
 <body>
   <div id="app">
-    <header class="hud">
-      <div id="credits">💰 400</div>
-      <div id="score">🏆 0</div>
-      <div id="core">❤️ 100/100</div>
-      <div id="wave">🌊 0/100</div>
-      <div class="hud-actions">
-        <button id="statsBtn">📊</button>
-        <button id="pauseBtn">⏸️</button>
-        <button id="soundBtn">🔊</button>
-      </div>
-    </header>
-
     <div class="game-area">
-      <main>
-        <canvas id="game" width="1024" height="576"></canvas>
-      </main>
-      <div class="tower-panel">
+      <div class="stage-wrap">
+        <main>
+          <canvas id="game" width="1024" height="576"></canvas>
+        </main>
+
+        <div class="hud-floating-left">
+          <div id="core">❤️ 100/100</div>
+          <div id="credits">💰 400</div>
+          <div id="score">🏆 0</div>
+        </div>
+
+        <div class="hud-floating-right">
+          <div id="wave">🌊 0/100</div>
+          <div class="hud-actions">
+            <button id="statsBtn">📊</button>
+            <button id="pauseBtn">⏸️</button>
+            <button id="soundBtn">🔊</button>
+          </div>
+        </div>
+
+        <div class="bottom-floating">
+          <div id="abilities" class="abilities">
+            <button id="abilSlow">🐌 Slow (20💰)</button>
+            <button id="abilCredits">💰 Bonus (50💰)</button>
+            <button id="abilBoost">⚡ Boost (30💰)</button>
+          </div>
+          <button id="autoWaveBtn">🔄 Auto</button>
+          <button id="clearSelection">✕ Clear</button>
+          <p id="hint">🌿 Tower auswählen und auf eine freie Fläche tippen</p>
+        </div>
+      </div>
+
+      <aside class="tower-panel">
+        <div class="sidebar-top">
+          <button id="shopBtn">🛒 Shop</button>
+          <button id="mapBtn">🗺️ Map</button>
+        </div>
         <div class="tower-row" id="towerButtons"></div>
-      </div>
+        <div class="sidebar-bottom">
+          <button id="speedBtn">⏩ 1×</button>
+          <button id="startWave">▶ Start</button>
+        </div>
+      </aside>
     </div>
 
-    <div class="bottom-bar">
-      <div class="actions">
-        <button id="startWave">▶ Start</button>
-        <button id="autoWaveBtn">🔄 Auto</button>
-        <button id="speedBtn">⏩ 1×</button>
-        <button id="shopBtn">🛒 Shop</button>
-        <button id="clearSelection">✕ Clear</button>
-        <button id="mapBtn">🗺️ Map</button>
-      </div>
-      <div id="abilities" class="abilities">
-        <button id="abilSlow">🐌 Slow (20💰)</button>
-        <button id="abilCredits">💰 Bonus (50💰)</button>
-        <button id="abilBoost">⚡ Boost (30💰)</button>
-      </div>
-      <p id="hint">🌿 Tower auswählen und auf eine freie Fläche tippen</p>
-    </div>
-
-    <!-- Upgrade Popup -->
     <div id="upgradePopup" class="popup hidden">
       <div class="popup-content">
         <h3 id="upgradeTitle">🔫 Laser ★1</h3>
@@ -70,7 +77,6 @@
       </div>
     </div>
 
-    <!-- Shop Popup -->
     <div id="shopPopup" class="popup hidden">
       <div class="popup-content">
         <h3>🛒 Shop</h3>
@@ -79,7 +85,6 @@
       </div>
     </div>
 
-    <!-- Map Selection -->
     <div id="mapPopup" class="popup hidden">
       <div class="popup-content">
         <h3>🗺️ Karte wählen</h3>
@@ -98,6 +103,6 @@
   </div>
 
   <meta http-equiv="pragma" content="no-cache" />
-  <script src="./game.js?v=20261115i"></script>
+  <script src="./game.js?v=20261115l"></script>
 </body>
 </html>
