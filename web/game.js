@@ -295,6 +295,7 @@ function resetState() {
   state.gameOver = false; state.victory = false;
   state.stats = { kills:0, moneyEarned:0, moneySpent:0, towersPlaced:0, wavesCompleted:0 };
   state.shakeTimer = 0; state.shakeIntensity = 0; state._autoWaveTimer = 0;
+  state.floatingTexts = []; state.shockwaves = []; state.hoverTile = null;
   state.abilityCD = { slow:0, credits:0, boost:0 };
   state._nextTowerId = 1;
   particles = [];
@@ -418,14 +419,41 @@ function startWave() {
   updateHud();
 }
 
+function spawnFloatingText(x, y, text, color = "#ffffff") {
+  state.floatingTexts.push({ x, y, text, color, life: 1.0, maxLife: 1.0 });
+}
+
+function spawnShockwave(x, y, maxR, color = "#ffe37a") {
+  state.shockwaves.push({ x, y, r: 4, maxR, color, life: 0.35, maxLife: 0.35 });
+}
+
+function updateEffects(dt) {
+  for (const ft of state.floatingTexts) {
+    ft.y -= 28 * dt;
+    ft.life -= dt;
+  }
+  state.floatingTexts = state.floatingTexts.filter(ft => ft.life > 0);
+  for (const sw of state.shockwaves) {
+    sw.life -= dt;
+    const prog = 1 - Math.max(0, sw.life / sw.maxLife);
+    sw.r = 4 + (sw.maxR - 4) * prog;
+  }
+  state.shockwaves = state.shockwaves.filter(sw => sw.life > 0);
+}
+
 function spawnEnemy(typeKey, idx = 0, prog = 0) {
   const e = ENEMIES[typeKey];
   const a = toPx(PATH[idx][0], PATH[idx][1]);
   const b = PATH[idx + 1] ? toPx(PATH[idx + 1][0], PATH[idx + 1][1]) : a;
+  const start = { x: a.x + (b.x - a.x) * prog, y: a.y + (b.y - a.y) * prog };
   state.enemies.push({
     typeKey, hp: e.hp, maxHp: e.hp, speedMul: 1, stun: 0, slow: 0,
-    idx, prog, x: a.x + (b.x - a.x) * prog, y: a.y + (b.y - a.y) * prog, revealed: !e.stealth
+    idx, prog, x: start.x, y: start.y, revealed: !e.stealth
   });
+  if (e.boss) {
+    triggerShake(6, 0.35);
+    spawnFloatingText(start.x + 80, start.y - 24, "⚠️ " + e.name, e.color);
+  }
 }
 
 function tryPlaceTower(c, r) {
@@ -456,6 +484,7 @@ function updateEnemies(dt) {
     if (!to) {
       e.hp = -999;
       state.core -= ENEMIES[e.typeKey].coreDmg;
+      triggerShake(Math.min(10, Math.max(3, ENEMIES[e.typeKey].coreDmg / 8)), 0.3);
       if (state.core <= 0) { state.core = 0; state.gameOver = true; state.victory = false; }
       updateHud();
       continue;
@@ -540,12 +569,14 @@ function updateTowers(dt) {
     if (def.income && t.cd <= 0) {
       state.credits += stats.income;
       state.stats.moneyEarned += stats.income;
+      spawnFloatingText(pos.x, pos.y - 18, "+" + stats.income + "💰", "#ffd84d");
       updateHud();
       t.cd = 1 / stats.rate;
       continue;
     }
     if (def.heal && t.cd <= 0) {
       state.core = Math.min(state.maxCore, state.core + stats.heal);
+      spawnFloatingText(pos.x, pos.y - 18, "+" + stats.heal + "❤️", "#4ade80");
       updateHud();
       t.cd = 1 / stats.rate;
       continue;
@@ -562,6 +593,7 @@ function updateTowers(dt) {
     if (!validTargets.length) continue;
 
     if (t.type === "empPulse") {
+      spawnShockwave(pos.x, pos.y, stats.range * GRID.tile, "#ffe37a");
       for (const e of validTargets) {
         damageEnemy(e, stats.damage);
         if (e.hp > 0) applyTowerEffects(t, e);
@@ -574,6 +606,7 @@ function updateTowers(dt) {
     const target = selectTarget(validTargets, pos, t.targetMode || "first");
     const dx = target.x - pos.x, dy = target.y - pos.y;
     const d = Math.hypot(dx, dy) || 1;
+    spawnParticles(pos.x, pos.y, def.color, 3, 1.8, 0.2);
     state.projectiles.push({ x: pos.x, y: pos.y, tx: target.x, ty: target.y, vx: dx/d*420, vy: dy/d*420, dmg: stats.damage, splash: def.splash || 0, color: def.color, towerType: t.type, target });
     t.cd = 1 / stats.rate;
   }
@@ -695,32 +728,95 @@ function drawGrid() {
     ctx.beginPath(); ctx.arc(gx,gy,1+((i*31)%3),0,Math.PI*2); ctx.fill();
   }
 
-  // Draw tiles
+  // Subtle background grid tiles (non-path, non-build)
   for (let r = 0; r < GRID.rows; r++) {
     for (let c = 0; c < GRID.cols; c++) {
       const x = GRID.ox + c * GRID.tile, y = GRID.oy + r * GRID.tile;
       const key = `${c},${r}`;
       const isPath = PATH.some(p => p[0] === c && p[1] === r);
       const isBuild = BUILD_SPOTS.has(key);
-
-      if (isPath) {
-        const pg = ctx.createLinearGradient(x,y,x,y+GRID.tile);
-        pg.addColorStop(0,t.path1); pg.addColorStop(1,t.path2);
-        ctx.fillStyle = pg; ctx.fillRect(x+2,y+2,GRID.tile-4,GRID.tile-4);
-        ctx.strokeStyle = `rgba(0,0,0,0.15)`; ctx.lineWidth=1;
-        ctx.strokeRect(x+2,y+2,GRID.tile-4,GRID.tile-4);
-      } else if (isBuild) {
-        const sg = ctx.createLinearGradient(x,y,x,y+GRID.tile);
-        sg.addColorStop(0,lerpColor(t.path1,0.15)); sg.addColorStop(1,lerpColor(t.path1,-0.15));
-        ctx.fillStyle = sg; ctx.beginPath(); ctx.roundRect(x+4,y+4,GRID.tile-8,GRID.tile-8,6); ctx.fill();
-        ctx.strokeStyle = `rgba(255,255,255,0.12)`; ctx.lineWidth=1; ctx.setLineDash([4,4]);
-        ctx.beginPath(); ctx.roundRect(x+6,y+6,GRID.tile-12,GRID.tile-12,4); ctx.stroke();
-        ctx.setLineDash([]);
-      } else {
-        ctx.fillStyle = `rgba(255,255,255,${0.03+((c*7+r*13)%6)*0.008})`;
+      if (!isPath && !isBuild) {
+        ctx.fillStyle = `rgba(255,255,255,${0.025+((c*7+r*13)%6)*0.007})`;
         ctx.fillRect(x+2,y+2,GRID.tile-4,GRID.tile-4);
       }
     }
+  }
+
+  // Smoothly connected path ribbon
+  if (PATH.length > 0) {
+    ctx.save();
+    ctx.lineCap = "round";
+    ctx.lineJoin = "round";
+    // Outer dark road curb
+    ctx.beginPath();
+    PATH.forEach(([pc, pr], idx) => {
+      const px = GRID.ox + pc * GRID.tile + GRID.tile / 2;
+      const py = GRID.oy + pr * GRID.tile + GRID.tile / 2;
+      if (idx === 0) ctx.moveTo(px, py);
+      else ctx.lineTo(px, py);
+    });
+    ctx.strokeStyle = lerpColor(t.path2, -0.35);
+    ctx.lineWidth = GRID.tile - 4;
+    ctx.stroke();
+
+    // Main road fill
+    ctx.strokeStyle = t.path2;
+    ctx.lineWidth = GRID.tile - 9;
+    ctx.stroke();
+
+    // Inner sunlit road center
+    ctx.strokeStyle = t.path1;
+    ctx.lineWidth = GRID.tile - 16;
+    ctx.stroke();
+    ctx.restore();
+
+    // Pebbles & subtle road texture per path tile
+    for (let i = 0; i < PATH.length; i++) {
+      const [pc, pr] = PATH[i];
+      const px = GRID.ox + pc * GRID.tile;
+      const py = GRID.oy + pr * GRID.tile;
+      const seed = pc * 37 + pr * 73;
+      ctx.fillStyle = "rgba(0,0,0,0.12)";
+      ctx.beginPath();
+      ctx.ellipse(px + 12 + (seed % 14), py + 14 + ((seed * 3) % 14), 3, 2, 0.3, 0, Math.PI * 2);
+      ctx.fill();
+      ctx.fillStyle = "rgba(255,255,255,0.16)";
+      ctx.beginPath();
+      ctx.ellipse(px + 26 - (seed % 10), py + 28 - ((seed * 5) % 10), 2.2, 1.5, -0.4, 0, Math.PI * 2);
+      ctx.fill();
+    }
+  }
+
+  // Build-spot platform pads (high contrast per map theme)
+  const padColors = {
+    grass:  { top: "#735334", bot: "#4d351e", rim: "#2a1a0b", inner: "rgba(255, 224, 150, 0.32)" },
+    desert: { top: "#8a5229", bot: "#5c3314", rim: "#361b07", inner: "rgba(255, 215, 130, 0.36)" },
+    frozen: { top: "#3b5978", bot: "#243b54", rim: "#112030", inner: "rgba(180, 235, 255, 0.42)" },
+    space:  { top: "#3b3a6e", bot: "#232247", rim: "#121129", inner: "rgba(120, 210, 255, 0.42)" }
+  }[currentMap] || { top: "#6b4c2e", bot: "#48321c", rim: "#26180c", inner: "rgba(255,255,255,0.28)" };
+
+  for (const key of BUILD_SPOTS) {
+    const [c, r] = key.split(",").map(Number);
+    const x = GRID.ox + c * GRID.tile, y = GRID.oy + r * GRID.tile;
+    // Pad drop shadow
+    ctx.fillStyle = "rgba(0,0,0,0.28)";
+    ctx.beginPath(); ctx.roundRect(x+4, y+6, GRID.tile-8, GRID.tile-8, 7); ctx.fill();
+    // Pad body
+    const sg = ctx.createLinearGradient(x, y+4, x, y+GRID.tile-4);
+    sg.addColorStop(0, padColors.top);
+    sg.addColorStop(1, padColors.bot);
+    ctx.fillStyle = sg;
+    ctx.beginPath(); ctx.roundRect(x+4, y+4, GRID.tile-8, GRID.tile-8, 7); ctx.fill();
+    // Pad rim
+    ctx.strokeStyle = padColors.rim;
+    ctx.lineWidth = 1.5;
+    ctx.stroke();
+    // Inner dashed placement frame
+    ctx.strokeStyle = padColors.inner;
+    ctx.lineWidth = 1.1;
+    ctx.setLineDash([4, 3]);
+    ctx.beginPath(); ctx.roundRect(x+8, y+8, GRID.tile-16, GRID.tile-16, 4); ctx.stroke();
+    ctx.setLineDash([]);
   }
 }
 
@@ -731,123 +827,406 @@ const DECOR_TREES = (() => {
 })();
 
 function drawDecorTrees() {
-  const t = MAPS[currentMap].theme;
   for (const p of DECOR_TREES) {
+    // Soft ground shadow
+    ctx.fillStyle = "rgba(0,0,0,0.26)";
+    ctx.beginPath(); ctx.ellipse(p.x+2, p.y+10, 12, 5, 0, 0, Math.PI*2); ctx.fill();
+
     if (currentMap === "grass") {
-      ctx.fillStyle = "#5a3a1a"; ctx.fillRect(p.x-3,p.y-2,6,12);
-      ctx.fillStyle = "#2a8a30"; ctx.beginPath(); ctx.arc(p.x,p.y-6,14,0,Math.PI*2); ctx.fill();
-      ctx.fillStyle = "#3a9a40"; ctx.beginPath(); ctx.arc(p.x-5,p.y-8,8,0,Math.PI*2); ctx.fill();
+      // Trunk
+      ctx.fillStyle = "#5c3a1a";
+      ctx.strokeStyle = "#2b1808"; ctx.lineWidth = 1.2;
+      ctx.beginPath(); ctx.roundRect(p.x-3.5, p.y-2, 7, 13, 2); ctx.fill(); ctx.stroke();
+      // Layered foliage
+      ctx.fillStyle = "#1f6f26";
+      ctx.beginPath(); ctx.arc(p.x+3, p.y-5, 11, 0, Math.PI*2); ctx.fill();
+      ctx.fillStyle = "#2d9435";
+      ctx.beginPath(); ctx.arc(p.x, p.y-7, 13, 0, Math.PI*2); ctx.fill();
+      ctx.strokeStyle = "#144718"; ctx.lineWidth = 1.3; ctx.stroke();
+      // Sunlit leaf puff
+      ctx.fillStyle = "#48b84f";
+      ctx.beginPath(); ctx.arc(p.x-4, p.y-10, 7, 0, Math.PI*2); ctx.fill();
     } else if (currentMap === "desert") {
-      ctx.fillStyle = "#6a4a2a"; ctx.fillRect(p.x-4,p.y-2,8,14);
-      ctx.fillStyle = "#5a7a2a"; ctx.beginPath(); ctx.arc(p.x,p.y-4,10,0,Math.PI*2); ctx.fill();
-      ctx.fillStyle = "#4a6a1a"; ctx.beginPath(); ctx.arc(p.x-3,p.y-6,7,0,Math.PI*2); ctx.fill();
+      // Saguaro cactus with arms & spines
+      ctx.fillStyle = "#3e7d32";
+      ctx.strokeStyle = "#1c4215"; ctx.lineWidth = 1.3;
+      // Left arm
+      ctx.beginPath(); ctx.roundRect(p.x-10, p.y-5, 6, 8, 3); ctx.fill(); ctx.stroke();
+      // Right arm
+      ctx.beginPath(); ctx.roundRect(p.x+4, p.y-8, 6, 9, 3); ctx.fill(); ctx.stroke();
+      // Main stem
+      ctx.fillStyle = "#4c963e";
+      ctx.beginPath(); ctx.roundRect(p.x-4, p.y-13, 8, 24, 4); ctx.fill(); ctx.stroke();
+      // Spines
+      ctx.strokeStyle = "#e8f5c8"; ctx.lineWidth = 1;
+      ctx.beginPath();
+      ctx.moveTo(p.x-4, p.y-9); ctx.lineTo(p.x-6.5, p.y-10);
+      ctx.moveTo(p.x+4, p.y-4); ctx.lineTo(p.x+6.5, p.y-5);
+      ctx.moveTo(p.x-4, p.y+2); ctx.lineTo(p.x-6.5, p.y+1);
+      ctx.stroke();
     } else if (currentMap === "frozen") {
-      ctx.fillStyle = "#a0ccdd"; ctx.beginPath(); ctx.arc(p.x,p.y-2,12,0,Math.PI*2); ctx.fill();
-      ctx.fillStyle = "rgba(255,255,255,0.6)"; ctx.beginPath(); ctx.arc(p.x-4,p.y-4,5,0,Math.PI*2); ctx.fill();
-      ctx.fillStyle = "rgba(255,255,255,0.3)"; ctx.beginPath(); ctx.arc(p.x+3,p.y-6,4,0,Math.PI*2); ctx.fill();
+      // Ice crystal cluster
+      ctx.strokeStyle = "#3a7ca5"; ctx.lineWidth = 1.2;
+      ctx.fillStyle = "#7dd3fc";
+      ctx.beginPath(); ctx.moveTo(p.x-9, p.y+8); ctx.lineTo(p.x-5, p.y-7); ctx.lineTo(p.x, p.y+8); ctx.closePath(); ctx.fill(); ctx.stroke();
+      ctx.fillStyle = "#bae6fd";
+      ctx.beginPath(); ctx.moveTo(p.x-4, p.y+9); ctx.lineTo(p.x+1, p.y-13); ctx.lineTo(p.x+6, p.y+9); ctx.closePath(); ctx.fill(); ctx.stroke();
+      ctx.fillStyle = "#e0f2fe";
+      ctx.beginPath(); ctx.moveTo(p.x+2, p.y+8); ctx.lineTo(p.x+8, p.y-4); ctx.lineTo(p.x+10, p.y+8); ctx.closePath(); ctx.fill(); ctx.stroke();
     } else {
-      ctx.fillStyle = "#2a1a3a"; ctx.beginPath(); ctx.arc(p.x,p.y-3,10,0,Math.PI*2); ctx.fill();
-      ctx.fillStyle = "#3a2a5a"; ctx.beginPath(); ctx.arc(p.x-4,p.y-5,6,0,Math.PI*2); ctx.fill();
-      ctx.fillStyle = "rgba(180,120,255,0.2)"; ctx.beginPath(); ctx.arc(p.x,p.y-3,12,0,Math.PI*2); ctx.fill();
+      // Glowing space asteroid + nebula
+      const neb = ctx.createRadialGradient(p.x, p.y-2, 2, p.x, p.y-2, 16);
+      neb.addColorStop(0, "rgba(192,132,252,0.45)");
+      neb.addColorStop(1, "rgba(192,132,252,0)");
+      ctx.fillStyle = neb;
+      ctx.beginPath(); ctx.arc(p.x, p.y-2, 16, 0, Math.PI*2); ctx.fill();
+      ctx.fillStyle = "#4b3b6b";
+      ctx.strokeStyle = "#a855f7"; ctx.lineWidth = 1.2;
+      ctx.beginPath(); ctx.arc(p.x, p.y-2, 9, 0, Math.PI*2); ctx.fill(); ctx.stroke();
+      ctx.fillStyle = "#2d2145";
+      ctx.beginPath(); ctx.arc(p.x-3, p.y-4, 2.5, 0, Math.PI*2); ctx.fill();
+      ctx.beginPath(); ctx.arc(p.x+3, p.y+1, 2, 0, Math.PI*2); ctx.fill();
     }
   }
 }
 
-// ── BTD5-style Bloon Drawing ───────────────────────────────────
-function drawBloon(x, y, radius, color, isBoss, alpha) {
+// ── BTD6-style Bloon Drawing ───────────────────────────────────
+function drawBloon(x, y, radius, color, isBoss, alpha = 1, typeKey = null, hpPct = 1) {
   ctx.save();
   ctx.globalAlpha = alpha;
-  drawShadow(x, y + 3, radius * 2, radius * 0.9);
+  const rx = radius * 0.92;
+  const ry = radius * 1.08;
+  drawShadow(x, y + 4, rx * 2.1, radius * 0.9);
 
-  // Body with BTD6-style 3-layer gradient
-  const g = ctx.createRadialGradient(x-radius*0.3, y-radius*0.35, radius*0.05, x, y, radius);
+  // Base vertical-oval body
+  const g = ctx.createRadialGradient(x - rx * 0.3, y - ry * 0.35, radius * 0.05, x, y, ry);
   g.addColorStop(0, "#fff");
-  g.addColorStop(0.15, lerpColor(color,0.5));
-  g.addColorStop(0.5, color);
-  g.addColorStop(0.85, lerpColor(color,-0.2));
-  g.addColorStop(1, lerpColor(color,-0.4));
+  g.addColorStop(0.16, lerpColor(color, 0.45));
+  g.addColorStop(0.55, color);
+  g.addColorStop(0.88, lerpColor(color, -0.22));
+  g.addColorStop(1, lerpColor(color, -0.45));
+
+  ctx.beginPath();
+  ctx.ellipse(x, y, rx, ry, 0, 0, Math.PI * 2);
   ctx.fillStyle = g;
-  ctx.beginPath(); ctx.arc(x, y, radius, 0, Math.PI*2); ctx.fill();
+  ctx.fill();
 
-  // Rim
-  ctx.strokeStyle = lerpColor(color,-0.25); ctx.lineWidth = 1.2;
-  ctx.beginPath(); ctx.arc(x, y, radius-0.5, 0, Math.PI*2); ctx.stroke();
+  // Clipped special textures per typeKey
+  if (typeKey) {
+    ctx.save();
+    ctx.beginPath();
+    ctx.ellipse(x, y, rx, ry, 0, 0, Math.PI * 2);
+    ctx.clip();
 
-  // Big crescent shine (BTD6 style)
-  ctx.fillStyle = "rgba(255,255,255,0.45)";
-  ctx.beginPath(); ctx.ellipse(x-radius*0.3, y-radius*0.35, radius*0.4, radius*0.25, -0.4, 0, Math.PI*2); ctx.fill();
-  // Small shine
-  ctx.fillStyle = "rgba(255,255,255,0.2)";
-  ctx.beginPath(); ctx.ellipse(x-radius*0.15, y-radius*0.15, radius*0.15, radius*0.1, 0, 0, Math.PI*2); ctx.fill();
+    if (typeKey === "xarrZebra") {
+      ctx.fillStyle = "#ffffff";
+      ctx.fillRect(x - rx, y - ry, rx * 2, ry * 2);
+      ctx.strokeStyle = "#18181b";
+      ctx.lineWidth = Math.max(2.5, radius * 0.34);
+      for (let i = -2; i <= 2; i++) {
+        ctx.beginPath();
+        ctx.moveTo(x - rx * 1.4 + i * radius * 0.65, y - ry * 1.2);
+        ctx.lineTo(x + rx * 0.6 + i * radius * 0.65, y + ry * 1.2);
+        ctx.stroke();
+      }
+    } else if (typeKey === "xarrRainbow") {
+      const bands = ["#ff3b30", "#ff9500", "#ffd60a", "#34c759", "#007aff", "#af52de"];
+      const bandH = (ry * 2) / bands.length;
+      for (let i = 0; i < bands.length; i++) {
+        ctx.fillStyle = bands[i];
+        ctx.fillRect(x - rx, y - ry + i * bandH, rx * 2, bandH + 0.8);
+      }
+    } else if (typeKey === "xarrLead") {
+      const lg = ctx.createLinearGradient(x - rx, y - ry, x + rx, y + ry);
+      lg.addColorStop(0, "#e2e8f0");
+      lg.addColorStop(0.4, "#94a3b8");
+      lg.addColorStop(0.75, "#475569");
+      lg.addColorStop(1, "#1e293b");
+      ctx.fillStyle = lg;
+      ctx.fillRect(x - rx, y - ry, rx * 2, ry * 2);
+      // Brushed metal sheen
+      ctx.strokeStyle = "rgba(255,255,255,0.28)";
+      ctx.lineWidth = 1.5;
+      ctx.beginPath();
+      ctx.moveTo(x - rx * 0.8, y - ry * 0.2);
+      ctx.lineTo(x + rx * 0.8, y - ry * 0.5);
+      ctx.stroke();
+      // 4 rivets
+      ctx.fillStyle = "#1e293b";
+      const ro = radius * 0.42;
+      for (const [dx, dy] of [[-ro, -ro], [ro, -ro], [-ro, ro], [ro, ro]]) {
+        ctx.beginPath(); ctx.arc(x + dx, y + dy, 1.3, 0, Math.PI * 2); ctx.fill();
+      }
+    } else if (typeKey === "xarrArmored") {
+      const cg = ctx.createRadialGradient(x - rx * 0.25, y - ry * 0.3, 1, x, y, ry);
+      cg.addColorStop(0, "#f5d0a9");
+      cg.addColorStop(0.55, "#c68642");
+      cg.addColorStop(1, "#7c471b");
+      ctx.fillStyle = cg;
+      ctx.fillRect(x - rx, y - ry, rx * 2, ry * 2);
+      // Ceramic crack lines (stronger when hpPct < 0.7)
+      ctx.strokeStyle = hpPct < 0.7 ? "#2c1506" : "rgba(44, 21, 6, 0.45)";
+      ctx.lineWidth = hpPct < 0.7 ? 1.5 : 1;
+      ctx.beginPath();
+      ctx.moveTo(x - rx * 0.4, y - ry * 0.5);
+      ctx.lineTo(x, y - ry * 0.05);
+      ctx.lineTo(x + rx * 0.35, y + ry * 0.35);
+      if (hpPct < 0.7) {
+        ctx.moveTo(x, y - ry * 0.05);
+        ctx.lineTo(x - rx * 0.5, y + ry * 0.4);
+        ctx.moveTo(x + rx * 0.2, y - ry * 0.45);
+        ctx.lineTo(x + rx * 0.05, y + ry * 0.1);
+      }
+      ctx.stroke();
+    } else if (typeKey === "xarrGold") {
+      const gg = ctx.createRadialGradient(x - rx * 0.3, y - ry * 0.3, 1, x, y, ry);
+      gg.addColorStop(0, "#fffbeb");
+      gg.addColorStop(0.35, "#fde047");
+      gg.addColorStop(0.8, "#eab308");
+      gg.addColorStop(1, "#a16207");
+      ctx.fillStyle = gg;
+      ctx.fillRect(x - rx, y - ry, rx * 2, ry * 2);
+      // Sparkling 4-point star
+      ctx.fillStyle = "#ffffff";
+      const sx = x + rx * 0.28, sy = y - ry * 0.28, sr = radius * 0.35;
+      ctx.beginPath();
+      ctx.moveTo(sx, sy - sr); ctx.lineTo(sx + sr * 0.28, sy - sr * 0.28);
+      ctx.lineTo(sx + sr, sy); ctx.lineTo(sx + sr * 0.28, sy + sr * 0.28);
+      ctx.lineTo(sx, sy + sr); ctx.lineTo(sx - sr * 0.28, sy + sr * 0.28);
+      ctx.lineTo(sx - sr, sy); ctx.lineTo(sx - sr * 0.28, sy - sr * 0.28);
+      ctx.closePath(); ctx.fill();
+    } else if (typeKey === "xarrStealth" || typeKey === "xarrGhost") {
+      // Subtle camo blotches + ghostly shimmer
+      ctx.fillStyle = typeKey === "xarrGhost" ? "rgba(200, 235, 255, 0.3)" : "rgba(15, 35, 18, 0.36)";
+      ctx.beginPath(); ctx.ellipse(x - rx * 0.35, y - ry * 0.1, rx * 0.42, ry * 0.28, 0.5, 0, Math.PI * 2); ctx.fill();
+      ctx.beginPath(); ctx.ellipse(x + rx * 0.3, y + ry * 0.28, rx * 0.38, ry * 0.25, -0.4, 0, Math.PI * 2); ctx.fill();
+      ctx.beginPath(); ctx.ellipse(x + rx * 0.15, y - ry * 0.45, rx * 0.32, ry * 0.2, 0.2, 0, Math.PI * 2); ctx.fill();
+    } else if (typeKey === "xarrBlack" || typeKey === "xarrWhite" || typeKey === "xarrPurple") {
+      // Characteristic inner emblem / sheen
+      ctx.strokeStyle = typeKey === "xarrWhite" ? "rgba(0,0,0,0.22)" : "rgba(255,255,255,0.32)";
+      ctx.lineWidth = 1.2;
+      if (typeKey === "xarrPurple") {
+        ctx.beginPath();
+        ctx.moveTo(x, y - ry * 0.42); ctx.lineTo(x + rx * 0.36, y);
+        ctx.lineTo(x, y + ry * 0.42); ctx.lineTo(x - rx * 0.36, y);
+        ctx.closePath(); ctx.stroke();
+      } else {
+        ctx.beginPath();
+        ctx.arc(x, y + ry * 0.12, radius * 0.32, 0, Math.PI * 2);
+        ctx.stroke();
+      }
+    }
+    ctx.restore();
+  }
 
-  // Knot
-  ctx.fillStyle = lerpColor(color,-0.5);
-  ctx.beginPath(); ctx.moveTo(x-3,y+radius-2); ctx.lineTo(x+3,y+radius-2); ctx.lineTo(x,y+radius+3); ctx.closePath(); ctx.fill();
-  // String
-  ctx.strokeStyle = "rgba(0,0,0,0.15)"; ctx.lineWidth = 0.8;
-  ctx.beginPath(); ctx.moveTo(x,y+radius+3); ctx.quadraticCurveTo(x+4,y+radius+10,x-2,y+radius+16); ctx.stroke();
+  // Crisp cartoon outline
+  ctx.strokeStyle = typeKey === "xarrLead" ? "#0f172a" : "#1c1208";
+  ctx.lineWidth = 1.5;
+  ctx.beginPath();
+  ctx.ellipse(x, y, rx, ry, 0, 0, Math.PI * 2);
+  ctx.stroke();
+
+  // Double crescent shine top-left
+  ctx.fillStyle = "rgba(255,255,255,0.52)";
+  ctx.beginPath(); ctx.ellipse(x - rx * 0.32, y - ry * 0.36, rx * 0.38, ry * 0.22, -0.45, 0, Math.PI * 2); ctx.fill();
+  ctx.fillStyle = "rgba(255,255,255,0.28)";
+  ctx.beginPath(); ctx.ellipse(x - rx * 0.14, y - ry * 0.16, rx * 0.15, ry * 0.1, -0.3, 0, Math.PI * 2); ctx.fill();
+
+  // Gently swaying knot + string
+  const sway = Math.sin(Date.now() / 260 + x * 0.05) * 2.2;
+  ctx.fillStyle = lerpColor(color, -0.45);
+  ctx.strokeStyle = "#1c1208";
+  ctx.lineWidth = 1;
+  ctx.beginPath();
+  ctx.moveTo(x - 3, y + ry - 1);
+  ctx.lineTo(x + 3, y + ry - 1);
+  ctx.lineTo(x + sway * 0.25, y + ry + 3.5);
+  ctx.closePath();
+  ctx.fill(); ctx.stroke();
+
+  ctx.strokeStyle = "rgba(0,0,0,0.28)";
+  ctx.lineWidth = 0.9;
+  ctx.beginPath();
+  ctx.moveTo(x + sway * 0.25, y + ry + 3.5);
+  ctx.quadraticCurveTo(x + 4 + sway, y + ry + 9, x - 1 + sway * 0.6, y + ry + 15);
+  ctx.stroke();
 
   ctx.restore();
 }
 
-// ── Universal Boss Drawing (MOAB/BFB/ZOMG/BAD/DDT) ──
+// ── Universal Zeppelin Boss Drawing (DDT/MOAB/BFB/ZOMG/BAD) ──
 function drawBoss(x, y, enemy) {
   const ed = ENEMIES[enemy.typeKey];
-  const hpPct = enemy.hp / enemy.maxHp;
-  const sizes = {"xarrDDT":16,"xarrBoss":22,"xarrBFB":28,"xarrZOMG":34,"xarrBAD":40};
-  const r = sizes[enemy.typeKey] || 22;
-  const pulse = Math.sin(Date.now()/400)*0.15+0.85;
+  const hpPct = Math.max(0, enemy.hp / enemy.maxHp);
+  const sizes = { xarrDDT: 17, xarrBoss: 23, xarrBFB: 29, xarrZOMG: 35, xarrBAD: 42 };
+  const r = sizes[enemy.typeKey] || 23;
+  const rx = r * 1.18;
+  const ry = r * 0.66;
+  const pulse = Math.sin(Date.now() / 320) * 0.15 + 0.85;
 
-  drawShadow(x, y+6, r*2.5, r*1.2);
+  ctx.save();
+  drawShadow(x, y + 7, rx * 2.1, ry * 1.35);
 
-  // Outer glow
-  ctx.shadowColor = ed.color; ctx.shadowBlur = 15*pulse + (enemy.typeKey==="xarrBAD"?15:enemy.typeKey==="xarrZOMG"?10:0);
-  ctx.fillStyle = "#2a2a3a";
-  ctx.beginPath(); ctx.ellipse(x,y,r+2,r*0.7,0,0,Math.PI*2); ctx.fill();
-  ctx.shadowBlur = 0;
-
-  // Main body
-  const bg = ctx.createRadialGradient(x-r*0.2,y-r*0.2,r*0.1,x,y,r);
-  bg.addColorStop(0,"#7a7a8a"); bg.addColorStop(0.4,ed.color); bg.addColorStop(0.8,"#2a2a3a"); bg.addColorStop(1,"#1a1a2a");
-  ctx.fillStyle = bg;
-  ctx.beginPath(); ctx.ellipse(x,y,r,r*0.7,0,0,Math.PI*2); ctx.fill();
-
-  // Eyes
-  ctx.shadowColor = ed.color; ctx.shadowBlur = 12*pulse;
-  ctx.fillStyle = ed.color;
-  ctx.beginPath(); ctx.arc(x-r*0.4,y-2,5,0,Math.PI*2); ctx.fill();
-  ctx.beginPath(); ctx.arc(x+r*0.4,y-2,5,0,Math.PI*2); ctx.fill();
-  ctx.shadowBlur = 0;
-  ctx.fillStyle = "#fff";
-  ctx.beginPath(); ctx.arc(x-r*0.4,y-3,2.5,0,Math.PI*2); ctx.fill();
-  ctx.beginPath(); ctx.arc(x+r*0.4,y-3,2.5,0,Math.PI*2); ctx.fill();
-  ctx.fillStyle = "#1a1a2a";
-  ctx.beginPath(); ctx.arc(x-r*0.4-1,y-3,1.3,0,Math.PI*2); ctx.fill();
-  ctx.beginPath(); ctx.arc(x+r*0.4-1,y-3,1.3,0,Math.PI*2); ctx.fill();
-
-  // Label
-  ctx.fillStyle = "#fff"; ctx.font = `bold ${enemy.typeKey==="xarrBAD"?9:7}px sans-serif`; ctx.textAlign="center"; ctx.textBaseline="middle";
-  ctx.fillText(ed.name, x, y+r*0.35);
-
-  // Special markers for ZOMG/BAD
+  // BAD energy aura
   if (enemy.typeKey === "xarrBAD") {
-    // Skull icon
-    ctx.font = "16px sans-serif"; ctx.fillText("☠️", x, y-r*0.2);
-  } else if (enemy.typeKey === "xarrZOMG") {
-    ctx.font = "14px sans-serif"; ctx.fillText("🛡️", x, y-r*0.2);
+    ctx.shadowColor = "#d946ef";
+    ctx.shadowBlur = 22 * pulse;
+    ctx.fillStyle = "rgba(192, 38, 211, 0.24)";
+    ctx.beginPath(); ctx.ellipse(x, y, rx + 5, ry + 5, 0, 0, Math.PI * 2); ctx.fill();
+    ctx.shadowBlur = 0;
   }
 
-  // Health bar
-  const barW=r*2, barH=6, barX=x-barW/2, barY=y-r-12;
-  ctx.fillStyle = "rgba(0,0,0,0.7)";
-  ctx.beginPath(); ctx.roundRect(barX-1,barY-1,barW+2,barH+2,3); ctx.fill();
-  const hpC = hpPct>0.5?ed.color:hpPct>0.25?"#ffd166":"#ff5b6e";
+  // Gondola underneath
+  ctx.fillStyle = "#1e293b";
+  ctx.strokeStyle = "#090d16";
+  ctx.lineWidth = 1.5;
+  ctx.beginPath();
+  ctx.roundRect(x - rx * 0.28, y + ry * 0.65, rx * 0.56, ry * 0.32, 3);
+  ctx.fill(); ctx.stroke();
+
+  // Tail fins (top & bottom on left/rear)
+  const finColor = enemy.typeKey === "xarrDDT" ? "#1e1b2e"
+    : enemy.typeKey === "xarrBoss" ? "#2563eb"
+    : enemy.typeKey === "xarrBFB" ? "#991b1b"
+    : enemy.typeKey === "xarrZOMG" ? "#14532d"
+    : "#581c87";
+
+  ctx.fillStyle = finColor;
+  ctx.strokeStyle = "#090d16";
+  ctx.lineWidth = 1.8;
+  // Upper tail fin
+  ctx.beginPath();
+  ctx.moveTo(x - rx * 0.55, y - ry * 0.45);
+  ctx.lineTo(x - rx * 1.05, y - ry * 1.15);
+  ctx.lineTo(x - rx * 0.92, y - ry * 0.22);
+  ctx.closePath();
+  ctx.fill(); ctx.stroke();
+  // Lower tail fin
+  ctx.beginPath();
+  ctx.moveTo(x - rx * 0.55, y + ry * 0.45);
+  ctx.lineTo(x - rx * 1.05, y + ry * 1.15);
+  ctx.lineTo(x - rx * 0.92, y + ry * 0.22);
+  ctx.closePath();
+  ctx.fill(); ctx.stroke();
+
+  // DDT glowing rear thrusters
+  if (enemy.typeKey === "xarrDDT") {
+    ctx.fillStyle = `rgba(244, 63, 94, ${0.7 + 0.3 * pulse})`;
+    ctx.beginPath(); ctx.ellipse(x - rx * 1.04, y - ry * 0.2, 6, 3, 0, 0, Math.PI * 2); ctx.fill();
+    ctx.beginPath(); ctx.ellipse(x - rx * 1.04, y + ry * 0.2, 6, 3, 0, 0, Math.PI * 2); ctx.fill();
+  }
+
+  // Zeppelin hull gradient
+  const hullColors = {
+    xarrDDT:  ["#475569", "#1e293b", "#090d16"],
+    xarrBoss: ["#7dd3fc", "#2563eb", "#1e3a8a"],
+    xarrBFB:  ["#fca5a5", "#dc2626", "#7f1d1d"],
+    xarrZOMG: ["#86efac", "#166534", "#052e16"],
+    xarrBAD:  ["#e879f9", "#7e22ce", "#2e1065"]
+  }[enemy.typeKey] || ["#94a3b8", ed.color, "#0f172a"];
+
+  const hg = ctx.createRadialGradient(x - rx * 0.2, y - ry * 0.35, r * 0.1, x, y, rx);
+  hg.addColorStop(0, hullColors[0]);
+  hg.addColorStop(0.5, hullColors[1]);
+  hg.addColorStop(1, hullColors[2]);
+
+  ctx.beginPath();
+  ctx.ellipse(x, y, rx, ry, 0, 0, Math.PI * 2);
+  ctx.fillStyle = hg;
+  ctx.fill();
+
+  // Clipped hull markings / armor stripes / rivets
+  ctx.save();
+  ctx.beginPath();
+  ctx.ellipse(x, y, rx, ry, 0, 0, Math.PI * 2);
+  ctx.clip();
+
+  if (enemy.typeKey === "xarrBoss") {
+    // Blue-pink MOAB with white center stripe
+    ctx.fillStyle = "rgba(255,255,255,0.88)";
+    ctx.fillRect(x - rx, y - ry * 0.18, rx * 2, ry * 0.36);
+    ctx.fillStyle = "rgba(236, 72, 153, 0.75)";
+    ctx.fillRect(x + rx * 0.35, y - ry, rx * 0.16, ry * 2);
+  } else if (enemy.typeKey === "xarrBFB") {
+    // Red BFB with bold white/gold stripe & cross mark
+    ctx.fillStyle = "rgba(254, 240, 138, 0.85)";
+    ctx.fillRect(x - rx * 0.25, y - ry, rx * 0.18, ry * 2);
+    ctx.fillStyle = "rgba(255, 255, 255, 0.9)";
+    ctx.fillRect(x + rx * 0.15, y - ry * 0.14, rx * 0.55, ry * 0.28);
+    ctx.fillRect(x + rx * 0.36, y - ry * 0.45, rx * 0.14, ry * 0.9);
+  } else if (enemy.typeKey === "xarrZOMG") {
+    // Dark green/black armored plates + neon lime stripes
+    ctx.fillStyle = "rgba(5, 20, 10, 0.55)";
+    ctx.fillRect(x - rx * 0.45, y - ry, rx * 0.25, ry * 2);
+    ctx.fillStyle = "#a3e635";
+    ctx.fillRect(x - rx, y - ry * 0.16, rx * 2, ry * 0.32);
+  } else if (enemy.typeKey === "xarrDDT") {
+    // Stealth chevrons
+    ctx.strokeStyle = "rgba(244, 63, 94, 0.7)";
+    ctx.lineWidth = 2;
+    ctx.beginPath();
+    ctx.moveTo(x - rx * 0.3, y - ry * 0.6); ctx.lineTo(x, y); ctx.lineTo(x - rx * 0.3, y + ry * 0.6);
+    ctx.stroke();
+  } else if (enemy.typeKey === "xarrBAD") {
+    // Riveted purple-black armor band
+    ctx.fillStyle = "rgba(15, 5, 28, 0.65)";
+    ctx.fillRect(x - rx * 0.35, y - ry, rx * 0.24, ry * 2);
+    ctx.fillStyle = "#f0abfc";
+    for (let dy = -ry * 0.5; dy <= ry * 0.5; dy += ry * 0.33) {
+      ctx.beginPath(); ctx.arc(x - rx * 0.23, y + dy, 1.5, 0, Math.PI * 2); ctx.fill();
+    }
+  }
+
+  // Armor panel seam lines + rivets
+  ctx.strokeStyle = "rgba(0,0,0,0.38)";
+  ctx.lineWidth = 1.2;
+  ctx.beginPath();
+  ctx.moveTo(x - rx * 0.45, y - ry); ctx.lineTo(x - rx * 0.45, y + ry);
+  ctx.moveTo(x + rx * 0.45, y - ry); ctx.lineTo(x + rx * 0.45, y + ry);
+  ctx.stroke();
+  ctx.restore();
+
+  // Crisp hull cartoon outline
+  ctx.strokeStyle = "#090d16";
+  ctx.lineWidth = 2.2;
+  ctx.beginPath();
+  ctx.ellipse(x, y, rx, ry, 0, 0, Math.PI * 2);
+  ctx.stroke();
+
+  // Top gloss highlight
+  ctx.fillStyle = "rgba(255,255,255,0.28)";
+  ctx.beginPath();
+  ctx.ellipse(x - rx * 0.1, y - ry * 0.48, rx * 0.55, ry * 0.16, 0, 0, Math.PI * 2);
+  ctx.fill();
+
+  // BAD Skull Emblem & Label
+  if (enemy.typeKey === "xarrBAD") {
+    ctx.font = "16px sans-serif";
+    ctx.textAlign = "center";
+    ctx.textBaseline = "middle";
+    ctx.fillText("☠️", x + rx * 0.08, y - ry * 0.05);
+  } else {
+    ctx.fillStyle = "#ffffff";
+    ctx.font = `bold ${r > 26 ? 9 : 8}px sans-serif`;
+    ctx.textAlign = "center";
+    ctx.textBaseline = "middle";
+    ctx.fillText(ed.name, x, y);
+  }
+
+  // Health bar above blimp
+  const barW = rx * 1.7, barH = 6, barX = x - barW / 2, barY = y - ry - 14;
+  ctx.fillStyle = "rgba(0,0,0,0.75)";
+  ctx.beginPath(); ctx.roundRect(barX - 1, barY - 1, barW + 2, barH + 2, 3); ctx.fill();
+  const hpC = hpPct > 0.5 ? ed.color : hpPct > 0.25 ? "#ffd166" : "#ff5b6e";
   ctx.fillStyle = hpC;
-  ctx.beginPath(); ctx.roundRect(barX,barY,barW*hpPct,barH,2); ctx.fill();
+  ctx.beginPath(); ctx.roundRect(barX, barY, barW * hpPct, barH, 2); ctx.fill();
+
+  ctx.restore();
 }
 
 // ── BTD5-style Tower Drawing ───────────────────────────────────
 function drawTower3D(x, y, towerDef, level) {
+  ctx.save();
   const { color, body, icon, name } = towerDef;
   const h = 32;
   const pulse = Math.sin(Date.now()/600)*0.05+0.95;
@@ -857,8 +1236,20 @@ function drawTower3D(x, y, towerDef, level) {
   // Base platform
   ctx.fillStyle = "#3a3a4a";
   ctx.beginPath(); ctx.ellipse(x, y+15, 22, 9, 0, 0, Math.PI*2); ctx.fill();
-  ctx.strokeStyle = "#2a2a3a"; ctx.lineWidth = 1;
+  if (level >= 5) {
+    ctx.shadowColor = "#ffd700";
+    ctx.shadowBlur = level >= 6 ? 12 : 6;
+    ctx.strokeStyle = "#ffd700";
+    ctx.lineWidth = 2.5;
+  } else {
+    ctx.strokeStyle = "#2a2a3a";
+    ctx.lineWidth = 1;
+  }
   ctx.beginPath(); ctx.ellipse(x, y+15, 22, 9, 0, 0, Math.PI*2); ctx.stroke();
+  ctx.shadowBlur = 0;
+
+  ctx.textAlign = "center";
+  ctx.textBaseline = "middle";
 
     // Tower body – distinct character per type
   if (name === "Laser-Affe") {
@@ -1016,18 +1407,37 @@ function drawTower3D(x, y, towerDef, level) {
   }
 
   // Level badge
-  ctx.fillStyle = "rgba(0,0,0,0.6)";
+  ctx.fillStyle = level >= 5 ? "rgba(40,25,0,0.8)" : "rgba(0,0,0,0.6)";
   ctx.beginPath(); ctx.roundRect(x-12, y+18, 24, 12, 4); ctx.fill();
-  ctx.fillStyle = "#ffd700"; ctx.font = "bold 9px sans-serif"; ctx.textAlign="center"; ctx.textBaseline="middle";
+  ctx.fillStyle = level >= 6 ? "#fff2a6" : "#ffd700";
+  ctx.font = "bold 9px sans-serif"; ctx.textAlign="center"; ctx.textBaseline="middle";
   ctx.fillText(`★${level}`, x, y+24);
 
-  // Upgrade glow
-  if (level > 1) {
+  // Upgrade glow & ★6 rainbow/star aura
+  if (level >= 6) {
+    const hue = (Date.now() / 12) % 360;
+    const auraColor = `hsl(${hue}, 95%, 65%)`;
+    ctx.shadowColor = auraColor;
+    ctx.shadowBlur = 16;
+    ctx.strokeStyle = auraColor;
+    ctx.lineWidth = 2;
+    ctx.beginPath(); ctx.ellipse(x, y+4, 21, 11, 0, 0, Math.PI*2); ctx.stroke();
+    ctx.shadowBlur = 0;
+    for (let i = 0; i < 4; i++) {
+      const a = i * (Math.PI / 2) + Date.now() / 500;
+      ctx.fillStyle = `hsl(${(hue + i * 90) % 360}, 100%, 75%)`;
+      ctx.beginPath();
+      ctx.arc(x + Math.cos(a) * 20, y + 4 + Math.sin(a) * 10, 2, 0, Math.PI * 2);
+      ctx.fill();
+    }
+  } else if (level > 1) {
     ctx.shadowColor = color; ctx.shadowBlur = 8+level*2;
-    ctx.strokeStyle = `rgba(255,255,255,${0.05+level*0.03})`;
-    ctx.lineWidth = 1; ctx.beginPath(); ctx.ellipse(x,y+4,18,9,0,0,Math.PI*2); ctx.stroke();
+    ctx.strokeStyle = level === 5 ? "rgba(255,215,0,0.55)" : `rgba(255,255,255,${0.05+level*0.03})`;
+    ctx.lineWidth = level === 5 ? 1.5 : 1;
+    ctx.beginPath(); ctx.ellipse(x,y+4,18,9,0,0,Math.PI*2); ctx.stroke();
     ctx.shadowBlur = 0;
   }
+  ctx.restore();
 }
 
 // ── Particle System (pop effects, explosions) ──────────────────
@@ -1090,6 +1500,71 @@ function drawParticles() {
 
 // ── Main Entity Drawing ────────────────────────────────────────
 function drawEntities() {
+  // Build spot highlights & build preview when a tower type is selected
+  if (state.selectedTowerType) {
+    const selDef = TOWERS[state.selectedTowerType];
+    const canAfford = state.credits >= selDef.cost;
+    const pulseAlpha = 0.25 + 0.2 * Math.sin(Date.now() / 220);
+    ctx.save();
+    for (const spotKey of BUILD_SPOTS) {
+      const [sc, sr] = spotKey.split(",").map(Number);
+      if (state.towers.some(t => t.c === sc && t.r === sr)) continue;
+      const sx = GRID.ox + sc * GRID.tile, sy = GRID.oy + sr * GRID.tile;
+      ctx.strokeStyle = canAfford ? `rgba(102,255,153,${pulseAlpha})` : `rgba(255,91,110,${pulseAlpha})`;
+      ctx.lineWidth = 2;
+      ctx.beginPath();
+      ctx.roundRect(sx + 5, sy + 5, GRID.tile - 10, GRID.tile - 10, 6);
+      ctx.stroke();
+    }
+    if (state.hoverTile) {
+      const { c: hc, r: hr } = state.hoverTile;
+      const hKey = `${hc},${hr}`;
+      const occupied = state.towers.some(t => t.c === hc && t.r === hr);
+      if (BUILD_SPOTS.has(hKey) && !occupied) {
+        const hp = toPx(hc, hr);
+        const previewRange = getTowerStats(selDef, 1).range * GRID.tile;
+        if (previewRange > 0) {
+          ctx.fillStyle = canAfford ? "rgba(102,255,153,0.14)" : "rgba(255,91,110,0.14)";
+          ctx.beginPath(); ctx.arc(hp.x, hp.y, previewRange, 0, Math.PI * 2); ctx.fill();
+          ctx.strokeStyle = canAfford ? "rgba(102,255,153,0.75)" : "rgba(255,91,110,0.75)";
+          ctx.lineWidth = 1.8;
+          ctx.setLineDash([6, 4]);
+          ctx.beginPath(); ctx.arc(hp.x, hp.y, previewRange, 0, Math.PI * 2); ctx.stroke();
+          ctx.setLineDash([]);
+        }
+        ctx.globalAlpha = 0.75;
+        ctx.font = "24px sans-serif";
+        ctx.textAlign = "center";
+        ctx.textBaseline = "middle";
+        ctx.fillText(selDef.icon, hp.x, hp.y);
+        ctx.globalAlpha = 1;
+      }
+    }
+    ctx.restore();
+  }
+
+  // Range circle for selected or hovered placed tower
+  let rangeTower = state.selectedTowerIdx >= 0 ? state.towers[state.selectedTowerIdx] : null;
+  if (!rangeTower && state.hoverTile) {
+    rangeTower = state.towers.find(t => t.c === state.hoverTile.c && t.r === state.hoverTile.r) || null;
+  }
+  if (rangeTower) {
+    const rDef = TOWERS[rangeTower.type];
+    const rPx = getTowerStats(rDef, rangeTower.lvl).range * GRID.tile;
+    if (rPx > 0) {
+      const rp = toPx(rangeTower.c, rangeTower.r);
+      ctx.save();
+      ctx.fillStyle = "rgba(69,212,255,0.13)";
+      ctx.beginPath(); ctx.arc(rp.x, rp.y, rPx, 0, Math.PI * 2); ctx.fill();
+      ctx.strokeStyle = "rgba(69,212,255,0.8)";
+      ctx.lineWidth = 1.8;
+      ctx.setLineDash([6, 4]);
+      ctx.beginPath(); ctx.arc(rp.x, rp.y, rPx, 0, Math.PI * 2); ctx.stroke();
+      ctx.setLineDash([]);
+      ctx.restore();
+    }
+  }
+
   // Towers
   for (const t of state.towers) {
     const d = TOWERS[t.type];
@@ -1110,7 +1585,7 @@ function drawEntities() {
       drawBoss(e.x, e.y, e);
     } else {
       const radius = e.typeKey === "xarrTank" || e.typeKey === "xarrZebra" ? 11 : e.typeKey === "xarrArmored" || e.typeKey === "xarrLead" ? 10 : 8;
-      drawBloon(e.x, e.y, radius, ed.color, false, alpha);
+      drawBloon(e.x, e.y, radius, ed.color, false, alpha, e.typeKey, e.hp / e.maxHp);
 
       const hp = Math.max(0, e.hp / e.maxHp);
       if (hp < 1) {
@@ -1145,6 +1620,35 @@ function drawEntities() {
 
   // Particles
   drawParticles();
+
+  // Shockwaves
+  for (const sw of state.shockwaves) {
+    const a = Math.max(0, sw.life / sw.maxLife);
+    ctx.save();
+    ctx.globalAlpha = a * 0.75;
+    ctx.strokeStyle = sw.color;
+    ctx.lineWidth = 3 * a + 1;
+    ctx.beginPath();
+    ctx.arc(sw.x, sw.y, sw.r, 0, Math.PI * 2);
+    ctx.stroke();
+    ctx.restore();
+  }
+
+  // Floating Texts
+  for (const ft of state.floatingTexts) {
+    const a = Math.max(0, ft.life / ft.maxLife);
+    ctx.save();
+    ctx.globalAlpha = a;
+    ctx.font = "bold 14px 'Fredoka', sans-serif";
+    ctx.textAlign = "center";
+    ctx.textBaseline = "middle";
+    ctx.lineWidth = 3;
+    ctx.strokeStyle = "rgba(0,0,0,0.85)";
+    ctx.strokeText(ft.text, ft.x, ft.y);
+    ctx.fillStyle = ft.color;
+    ctx.fillText(ft.text, ft.x, ft.y);
+    ctx.restore();
+  }
 }
 
 function drawOverlay() {
@@ -1275,6 +1779,7 @@ canvas.addEventListener("pointerdown", ev => {
 // ── Upgrade Popup ──
 function showTowerUpgrade(idx) {
   const t = state.towers[idx];
+  if (!t) { hideUpgrade(); return; }
   const def = TOWERS[t.type];
   const stats = getTowerStats(def, t.lvl);
   const nextStats = getTowerStats(def, t.lvl + 1);
@@ -1310,7 +1815,8 @@ function showTowerUpgrade(idx) {
   upgradeBtn.textContent = maxed ? "⭐ MAX LEVEL" : `⬆ Upgraden (${upgCost}💰)`;
   upgradeBtn.disabled = maxed || state.credits < upgCost;
   upgradeBtn.onclick = () => {
-    if (maxed || state.credits < upgCost) return;
+    const curIdx = state.towers.indexOf(t);
+    if (curIdx < 0 || maxed || state.credits < upgCost) return;
     state.credits -= upgCost;
     t.lvl++;
     playUpgrade();
@@ -1325,8 +1831,10 @@ function showTowerUpgrade(idx) {
   const sellValue = Math.floor(totalSpent * 0.6);
   sellBtn.textContent = `💰 Verkaufen (+${sellValue})`;
   sellBtn.onclick = () => {
+    const curIdx = state.towers.indexOf(t);
+    if (curIdx < 0) { hideUpgrade(); return; }
     state.credits += sellValue;
-    state.towers.splice(idx, 1);
+    state.towers.splice(curIdx, 1);
     playExplosion();
     updateHud();
     hideUpgrade();
@@ -1505,19 +2013,32 @@ function frame(now) {
     updateTowers(dt);
     updateProjectiles(dt);
     updateParticles(dt);
+    updateEffects(dt);
     checkWinLose();
   } else if (!state.gameOver) {
     // Paused: still update particles for visual effect
     updateParticles(dt);
+    updateEffects(dt);
   } else {
     updateParticles(dt);
+    updateEffects(dt);
   }
 
+  if (state.shakeTimer > 0) {
+    state.shakeTimer = Math.max(0, state.shakeTimer - dt);
+    if (state.shakeTimer <= 0) state.shakeIntensity = 0;
+  }
+
+  ctx.save();
+  if (state.shakeTimer > 0) {
+    ctx.translate((Math.random() - 0.5) * state.shakeIntensity * 2, (Math.random() - 0.5) * state.shakeIntensity * 2);
+  }
   ctx.clearRect(0,0,canvas.width,canvas.height);
   drawGrid();
   drawDecorTrees();
   drawEntities();
   drawOverlay();
+  ctx.restore();
 
   requestAnimationFrame(frame);
 }
@@ -1529,4 +2050,50 @@ canvas.addEventListener("pointerdown", () => {
   if (!state.gameOver) return;
   resetState();
   updateHud();
+});
+
+canvas.addEventListener("pointermove", ev => {
+  const rect = canvas.getBoundingClientRect();
+  const x = (ev.clientX - rect.left) * (canvas.width / rect.width);
+  const y = (ev.clientY - rect.top) * (canvas.height / rect.height);
+  const c = Math.floor((x - GRID.ox) / GRID.tile);
+  const r = Math.floor((y - GRID.oy) / GRID.tile);
+  if (c >= 0 && r >= 0 && c < GRID.cols && r < GRID.rows) {
+    state.hoverTile = { c, r };
+  } else {
+    state.hoverTile = null;
+  }
+});
+
+canvas.addEventListener("pointerleave", () => {
+  state.hoverTile = null;
+});
+
+window.addEventListener("keydown", ev => {
+  if (ev.key >= "1" && ev.key <= "8") {
+    const keys = Object.keys(TOWERS);
+    const idx = parseInt(ev.key, 10) - 1;
+    const key = keys[idx];
+    if (key) {
+      state.selectedTowerType = key;
+      const t = TOWERS[key];
+      [...towerButtonsEl.children].forEach((b, i) => b.classList.toggle("selected", i === idx));
+      hintEl.textContent = `${t.icon} ${t.name} gewählt – auf freies Feld tippen.`;
+    }
+  } else if (ev.key === " " || ev.code === "Space") {
+    ev.preventDefault();
+    if (!state.waveSpawning && state.enemies.length === 0 && !state.gameOver) {
+      startWave();
+    } else if (!state.gameOver) {
+      pauseBtn.click();
+    }
+  } else if (ev.key === "Escape") {
+    state.selectedTowerType = null;
+    [...towerButtonsEl.children].forEach(b => b.classList.remove("selected"));
+    hideUpgrade();
+    shopPopup.classList.add("hidden");
+    mapPopup.classList.add("hidden");
+    statsOverlay.classList.add("hidden");
+    hintEl.textContent = "Auswahl gelöscht.";
+  }
 });

@@ -340,13 +340,18 @@ canvas {
 }
 
 .tower-row button.selected {
+  transform: translateY(-2px);
   border-color: #fde047;
-  background: linear-gradient(180deg, #2b7a3d 0%, #1b5428 100%);
+  background: linear-gradient(180deg, #349449 0%, #1d612d 100%);
   box-shadow:
-    0 4px 0 #103318,
-    0 0 0 2px rgba(253, 224, 71, 0.4),
-    0 0 18px rgba(74, 222, 128, 0.45),
-    inset 0 2px 0 rgba(255, 255, 255, 0.38);
+    0 5px 0 #103318,
+    0 0 0 3px rgba(253, 224, 71, 0.55),
+    0 0 20px rgba(74, 222, 128, 0.55),
+    inset 0 2px 0 rgba(255, 255, 255, 0.48);
+}
+
+.tower-row button.selected .tower-label {
+  color: #fef08a;
 }
 
 .tower-row button:disabled {
@@ -446,8 +451,28 @@ canvas {
   background: linear-gradient(180deg, #4ade4a 0%, #199428 100%);
   box-shadow:
     0 4px 0 var(--cartoon-outline),
-    0 0 14px rgba(74, 222, 128, 0.3),
+    0 0 14px rgba(74, 222, 128, 0.35),
     inset 0 2px 0 rgba(255, 255, 255, 0.42);
+  animation: startPulse 2.2s ease-in-out infinite;
+}
+
+#startWave:disabled {
+  animation: none;
+}
+
+@keyframes startPulse {
+  0%, 100% {
+    box-shadow:
+      0 4px 0 var(--cartoon-outline),
+      0 0 12px rgba(74, 222, 128, 0.3),
+      inset 0 2px 0 rgba(255, 255, 255, 0.42);
+  }
+  50% {
+    box-shadow:
+      0 4px 0 var(--cartoon-outline),
+      0 0 22px rgba(74, 222, 128, 0.65),
+      inset 0 2px 0 rgba(255, 255, 255, 0.55);
+  }
 }
 
 #autoWaveBtn.active {
