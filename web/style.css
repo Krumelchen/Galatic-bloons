@@ -55,12 +55,13 @@ body {
   justify-content: space-between;
   align-items: center;
   gap: 8px;
-  background: linear-gradient(180deg, var(--wood-light) 0%, var(--wood-mid) 60%, var(--wood-dark) 100%);
+  background: linear-gradient(180deg, #7a512c 0%, var(--wood-mid) 58%, var(--wood-dark) 100%);
   border: 3px solid var(--cartoon-outline);
   box-shadow:
-    inset 0 2px 0 var(--bevel-top),
-    inset 0 -3px 0 rgba(0, 0, 0, 0.35),
-    0 5px 0 rgba(0, 0, 0, 0.38);
+    inset 0 2px 0 rgba(255, 240, 200, 0.36),
+    inset 0 -3px 0 rgba(0, 0, 0, 0.38),
+    0 5px 0 rgba(0, 0, 0, 0.38),
+    0 10px 20px rgba(0, 0, 0, 0.28);
   padding: 7px 10px;
   border-radius: 16px;
   margin-bottom: 10px;
@@ -80,30 +81,35 @@ body {
   background: var(--wood-inset);
   border: 2px solid var(--cartoon-outline);
   box-shadow:
-    inset 0 2px 4px rgba(0, 0, 0, 0.5),
-    0 1px 0 rgba(255, 232, 186, 0.16);
+    inset 0 1px 0 rgba(255, 255, 255, 0.14),
+    inset 0 2px 6px rgba(0, 0, 0, 0.52),
+    0 1px 0 rgba(255, 232, 186, 0.2);
   text-shadow: 0 2px 0 rgba(0, 0, 0, 0.75);
   white-space: nowrap;
 }
 
 .hud #credits {
   color: var(--gold);
-  background: linear-gradient(180deg, rgba(82, 58, 12, 0.75), rgba(34, 21, 5, 0.85));
+  background: linear-gradient(180deg, rgba(96, 68, 14, 0.8), rgba(34, 21, 5, 0.88));
+  box-shadow: inset 0 1px 0 rgba(255, 224, 120, 0.25), inset 0 2px 5px rgba(0, 0, 0, 0.48), 0 0 10px rgba(255, 216, 77, 0.12);
 }
 
 .hud #score {
   color: var(--pink);
-  background: linear-gradient(180deg, rgba(78, 24, 62, 0.7), rgba(34, 10, 26, 0.85));
+  background: linear-gradient(180deg, rgba(88, 28, 70, 0.76), rgba(34, 10, 26, 0.88));
+  box-shadow: inset 0 1px 0 rgba(255, 160, 224, 0.22), inset 0 2px 5px rgba(0, 0, 0, 0.48), 0 0 10px rgba(255, 123, 213, 0.12);
 }
 
 .hud #core {
   color: #6ef77b;
-  background: linear-gradient(180deg, rgba(20, 74, 30, 0.75), rgba(10, 34, 14, 0.85));
+  background: linear-gradient(180deg, rgba(24, 86, 36, 0.8), rgba(10, 34, 14, 0.88));
+  box-shadow: inset 0 1px 0 rgba(140, 255, 160, 0.22), inset 0 2px 5px rgba(0, 0, 0, 0.48), 0 0 10px rgba(110, 247, 123, 0.12);
 }
 
 .hud #wave {
   color: #67d8ff;
-  background: linear-gradient(180deg, rgba(16, 58, 86, 0.75), rgba(8, 28, 44, 0.85));
+  background: linear-gradient(180deg, rgba(20, 68, 100, 0.8), rgba(8, 28, 44, 0.88));
+  box-shadow: inset 0 1px 0 rgba(140, 230, 255, 0.24), inset 0 2px 5px rgba(0, 0, 0, 0.48), 0 0 10px rgba(103, 216, 255, 0.12);
 }
 
 .hud-actions {
@@ -123,11 +129,12 @@ body {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  background: linear-gradient(180deg, #4b8fe2 0%, #245ca8 100%);
+  background: linear-gradient(180deg, #5ca0ef 0%, #245ca8 100%);
   border: 2.5px solid var(--cartoon-outline);
   box-shadow:
     0 3px 0 var(--cartoon-outline),
-    inset 0 2px 0 rgba(255, 255, 255, 0.38);
+    inset 0 2px 0 rgba(255, 255, 255, 0.45),
+    0 0 10px rgba(56, 189, 248, 0.18);
   color: #ffffff;
   border-radius: 999px;
   cursor: pointer;
@@ -138,8 +145,12 @@ body {
 }
 
 .hud-actions button:hover {
-  filter: brightness(1.1);
+  filter: brightness(1.12);
   transform: translateY(-1px);
+  box-shadow:
+    0 4px 0 var(--cartoon-outline),
+    inset 0 2px 0 rgba(255, 255, 255, 0.52),
+    0 0 14px rgba(56, 189, 248, 0.35);
 }
 
 .hud-actions button:active {
@@ -166,109 +177,93 @@ body {
 
 /* ── Game Canvas Frame ── */
 main {
-  background: linear-gradient(180deg, var(--wood-light), var(--wood-dark));
+  background: linear-gradient(180deg, #7c522c 0%, var(--wood-mid) 55%, var(--wood-dark) 100%);
   border-radius: 16px;
   padding: 6px;
   border: 3px solid var(--cartoon-outline);
   box-shadow:
-    inset 0 2px 0 var(--bevel-top),
+    inset 0 2px 0 rgba(255, 236, 196, 0.36),
+    inset 0 -2px 0 rgba(0, 0, 0, 0.32),
     0 8px 0 rgba(0, 0, 0, 0.35),
-    0 14px 28px rgba(0, 0, 0, 0.5);
+    0 16px 34px rgba(0, 0, 0, 0.55),
+    0 0 24px rgba(255, 224, 150, 0.08);
 }
 
 canvas {
   width: 100%;
   height: auto;
   border-radius: 10px;
-  border: 2px solid rgba(0, 0, 0, 0.45);
+  border: 2px solid rgba(255, 232, 186, 0.22);
+  box-shadow:
+    inset 0 0 0 1px rgba(0, 0, 0, 0.48),
+    0 2px 10px rgba(0, 0, 0, 0.4);
   touch-action: manipulation;
   display: block;
   cursor: pointer;
 }
 
 @media (min-width: 901px) {
-  canvas {
-    max-height: 52dvh;
-    width: auto;
-    max-width: 100%;
-    margin: 0 auto;
-  }
-}
-
-@media (min-width: 901px) and (max-height: 780px) {
   #app {
-    padding: 5px 12px 6px;
+    max-width: 1920px;
+    width: 100%;
+    height: 100dvh;
+    display: flex;
+    flex-direction: column;
+    padding: 8px 16px 10px;
+    overflow: hidden;
   }
   .hud {
-    padding: 4px 10px;
-    margin-bottom: 5px;
+    margin-bottom: 8px;
+    flex-shrink: 0;
   }
-  .hud > div:not(.hud-actions) {
-    padding: 3px 10px;
-    font-size: 13.5px;
-  }
-  .hud-actions button {
-    width: 32px;
-    height: 32px;
-    min-width: 32px;
-    min-height: 32px;
-    font-size: 13px;
-  }
-  .game-area {
-    gap: 5px;
+  #app .game-area {
+    display: flex;
+    flex-direction: row;
+    align-items: stretch;
+    flex: 1;
+    min-height: 0;
+    gap: 12px;
   }
   main {
-    padding: 4px;
+    flex: 1;
+    min-width: 0;
+    min-height: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 6px;
   }
   canvas {
-    max-height: 38dvh;
+    width: auto;
+    height: auto;
+    max-width: 100%;
+    max-height: 100%;
+    aspect-ratio: 16 / 9;
+    margin: 0 auto;
   }
-  .tower-row {
-    gap: 5px;
+  #app .tower-panel {
+    display: flex;
+    flex-direction: column;
+    width: clamp(240px, 18vw, 320px);
+    flex-shrink: 0;
+    background: linear-gradient(180deg, var(--wood-light), var(--wood-dark));
+    border: 3px solid var(--cartoon-outline);
+    border-radius: 16px;
+    padding: 8px;
+    overflow-y: auto;
+    box-shadow:
+      inset 0 2px 0 var(--bevel-top),
+      0 6px 0 rgba(0, 0, 0, 0.35);
   }
-  .tower-row button {
-    min-height: 44px;
-    padding: 4px 6px;
-    gap: 1px;
+  #app .tower-row {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 8px;
+    align-content: start;
   }
-  .tower-row button .tower-icon {
-    font-size: 18px;
-  }
-  .tower-row button .tower-label {
-    font-size: 11px;
-  }
-  .tower-row button .tower-cost {
-    margin-top: 0;
-    padding: 1px 7px;
-    font-size: 10.5px;
-  }
-  .bottom-bar {
-    margin-top: 5px;
-    padding: 5px 8px;
-  }
-  .actions {
-    margin-bottom: 4px;
-  }
-  .actions button {
-    min-height: 34px;
-    padding: 5px 8px;
-    font-size: 13px;
-  }
-  .abilities,
-  #abilities {
-    margin-bottom: 4px;
-    padding: 3px;
-  }
-  .abilities button,
-  #abilities button {
-    min-height: 30px;
-    padding: 4px 6px;
-    font-size: 11.5px;
-  }
-  #hint {
-    min-height: 20px;
-    padding: 2px 8px;
-    font-size: 11px;
+  #app .bottom-bar {
+    margin-top: 8px;
+    flex-shrink: 0;
+    padding: 8px 10px;
   }
 }
 
@@ -495,6 +490,18 @@ canvas {
     0 4px 0 var(--cartoon-outline),
     0 0 14px rgba(251, 146, 60, 0.55),
     inset 0 2px 0 rgba(255, 255, 255, 0.42);
+}
+
+#speedBtn.turbo {
+  background: linear-gradient(180deg, #ff6b2b 0%, #dc2626 55%, #991b1b 100%);
+  border-color: #fef08a;
+  color: #fffbeb;
+  text-shadow: 0 1px 2px rgba(24, 13, 5, 0.9), 0 0 8px rgba(254, 240, 138, 0.65);
+  box-shadow:
+    0 4px 0 var(--cartoon-outline),
+    0 0 18px rgba(239, 68, 68, 0.78),
+    0 0 8px rgba(251, 146, 60, 0.85),
+    inset 0 2px 0 rgba(254, 240, 138, 0.55);
 }
 
 #clearSelection {
@@ -990,7 +997,7 @@ canvas {
   }
   #app {
     width: 100%;
-    padding: 6px;
+    padding: max(6px, env(safe-area-inset-top)) max(6px, env(safe-area-inset-right)) max(8px, env(safe-area-inset-bottom)) max(6px, env(safe-area-inset-left));
   }
   .game-area {
     display: flex !important;
@@ -1197,7 +1204,7 @@ canvas {
     min-width: 0;
   }
   .tower-panel {
-    width: 60px;
+    width: 74px;
     min-width: 48px;
     padding: 3px;
   }
@@ -1208,7 +1215,9 @@ canvas {
     font-size: 15px;
   }
   .tower-row button .tower-label {
-    display: none;
+    display: block;
+    font-size: 8.5px;
+    line-height: 1.1;
   }
   .tower-row button .tower-cost {
     font-size: 9.5px;
